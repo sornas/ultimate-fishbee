@@ -66,7 +66,7 @@ pub(crate) fn typecheck(prog: &Prog, args: &Args) -> Result<(), Vec<Error>> {
 
 fn typecheck_block(block: Rc<RefCell<Block>>, prog: &Prog, args: &Args) -> Vec<Error> {
     let print_bytecode = args.verbosity > 0;
-    let print_exec = args.verbosity > 0;
+    let print_exec = args.verbosity > 1;
     if print_bytecode {
         println!(
             "\n    [[{} - {}]]\n",
