@@ -1,0 +1,36 @@
+Fish :: blob {
+    value: int
+    pos: [float]
+    speed: [float]
+    height: int
+    layer: int
+
+    update: fn float -> void
+}
+
+PI :: 3.1415
+FISH_INIT_SPEED :: 40
+
+fish_new :: fn pos: (int, int) -> Fish {
+
+    y_speed: float = PI
+    y_speed
+
+    fish :: Fish! {
+        value: 0,
+        pos: [0.0, 0.0],
+        speed: [0.0, 0.0],
+        height: 0,
+        layer: 0,
+        update: fn delta: float {},
+    }
+
+    fish.update = fn delta: float {
+        fish.pos[0] += fish.speed[0] * delta
+        fish.pos[1] += fish.speed[1] * delta
+
+        fish.speed[1] += -9.81 * delta
+    }
+
+    ret fish
+}
