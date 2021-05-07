@@ -44,7 +44,6 @@ pub trait Next {
 /// external functions.
 pub fn run_file(args: &Args, functions: Vec<(String, RustFunction)>) -> Result<(), Vec<Error>> {
     let prog = compile(args, functions)?;
-    typechecker::typecheck(&prog, &args)?;
     run(&prog, &args)
 }
 
