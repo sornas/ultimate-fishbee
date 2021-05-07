@@ -16,6 +16,8 @@ update :: fn delta: float -> void {
     // for f in fishes {
     //     f.update! delta
     // }
+    print l_mouse!
+    print l_mouse_rel!
 }
 
 draw :: fn {

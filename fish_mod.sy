@@ -13,7 +13,6 @@ fish_new :: fn pos: (int, int) -> Fish {
 
     PI := 3.1415
     FISH_INIT_SPEED :: 40.0
-    FISH_INIT_SPEED
 
     angle := l_random_range! PI / 5.0, 4.0 * PI / 5.0
     print angle
