@@ -6,7 +6,7 @@ init :: fn {
 }
 
 update :: fn delta: float -> void {
-    print l_mouse!
+    print l_mouse_rel!
 }
 
 draw :: fn {
