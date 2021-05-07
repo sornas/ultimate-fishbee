@@ -13,7 +13,7 @@ FISH_INIT_SPEED :: 40
 
 fish_new :: fn pos: (int, int) -> Fish {
 
-    y_speed: float = PI
+    y_speed := PI
     y_speed
 
     fish :: Fish! {
