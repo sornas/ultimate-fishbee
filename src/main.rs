@@ -9,5 +9,9 @@ fn main() {
         help: false,
     };
 
-    sylt::run_file(&args, sylt::lib_bindings()).unwrap();
+    if let Err(errs) = sylt::run_file(&args, sylt::lib_bindings()) {
+        for e in errs {
+            eprintln!("{}", e);
+        }
+    }
 }
