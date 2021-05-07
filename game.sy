@@ -1,14 +1,27 @@
-use fish
+use fish_mod
+
+fishes : [Fish] = []
 
 init :: fn {
     l_bind_quit("quit")
     l_bind_key("ESCAPE", "quit")
+    fishes : ![int] = fishes
+    print fishes
+    new_fish : !int = fish_mod.fish_new! (0, 0)
+    push! fishes, new_fish
 }
 
 update :: fn delta: float -> void {
+    // dbg! fishes
+    // for f in fishes {
+    //     f.update! delta
+    // }
 }
 
 draw :: fn {
+    // for f in fishes {
+    //     f.draw!
+    // }
 }
 
 start :: fn {

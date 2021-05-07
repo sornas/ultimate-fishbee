@@ -6,23 +6,26 @@ Fish :: blob {
     layer: int
 
     update: fn float -> void
+    draw: fn -> void
 }
-
-PI :: 3.1415
-FISH_INIT_SPEED :: 40
 
 fish_new :: fn pos: (int, int) -> Fish {
 
-    y_speed: float = PI
-    y_speed
+    PI := 3.1415
+    FISH_INIT_SPEED :: 40.0
+    FISH_INIT_SPEED
 
+    angle := l_random_range! PI / 5.0, 4.0 * PI / 5.0
+    print angle
+    // -FISH_INIT_SPEED * sin(angle)
     fish :: Fish! {
         value: 0,
         pos: [0.0, 0.0],
-        speed: [0.0, 0.0],
+        speed: [FISH_INIT_SPEED * cos(angle), -FISH_INIT_SPEED * sin(angle)],
         height: 0,
         layer: 0,
         update: fn delta: float {},
+        draw: fn {},
     }
 
     fish.update = fn delta: float {
@@ -30,6 +33,10 @@ fish_new :: fn pos: (int, int) -> Fish {
         fish.pos[1] += fish.speed[1] * delta
 
         fish.speed[1] += -9.81 * delta
+    }
+
+    fish.draw = fn {
+        l_gfx_rect! (fish.pos[0], fish.pos[1]), (0.5, 0.5)
     }
 
     ret fish
