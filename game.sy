@@ -11,6 +11,39 @@ fish_frame :: fn index: int -> (str, int) {
     ret fish_frames[index]
 }
 
+frisbee_accents := [
+    [
+        l_load_image("src/res/frisbee_spikes1.png", (245, 123)),
+        l_load_image("src/res/frisbee_spikes2.png", (245, 123)),
+        l_load_image("src/res/frisbee_spikes3.png", (245, 123)),
+    ],
+    [
+        l_load_image("src/res/frisbee_dots1.png", (245, 123)),
+        l_load_image("src/res/frisbee_dots2.png", (245, 123)),
+        l_load_image("src/res/frisbee_dots3.png", (245, 123)),
+    ],
+    [
+        l_load_image("src/res/frisbee_wave1.png", (245, 123)),
+        l_load_image("src/res/frisbee_wave2.png", (245, 123)),
+        l_load_image("src/res/frisbee_wave3.png", (245, 123)),
+    ],
+]
+
+_frisbee_base :: l_load_image("src/res/frisbee_base.png", (245, 123))
+_frisbee_shadow :: l_load_image("src/res/frisbee_shadow.png", (245, 123))
+
+frisbee_base :: fn -> (str, int) {
+    ret _frisbee_base
+}
+
+frisbee_shadow :: fn -> (str, int) {
+    ret _frisbee_shadow
+}
+
+frisbee_accent :: fn type: int, index: int -> (str, int) {
+    ret frisbee_accents[type][index]
+}
+
 fishes := [fish_mod.fish_new([-100.0, -100.0], 0)]
 
 frisbee := frisbee_mod.new(1.0, 1.0, 1.0, 1.0)
