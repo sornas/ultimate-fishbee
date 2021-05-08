@@ -51,13 +51,17 @@ fish_new :: fn pos: [float], layer: int -> Fish {
     }
 
     fish.draw = fn {
-        sprite := game.fish_frame(fish.kind, 0)
+        bundle := game.fish_frame(fish.kind, 0)
+        sprite : !(str, int) = bundle[0]
+        aspect : !float = bundle[1]
 
         time := rem! l_time(), FISH_ANIM_TIME
         if FISH_ANIM_TIME / 3.0 < time && time < FISH_ANIM_TIME * 2.0 / 3.0 {
-            sprite = game.fish_frame(fish.kind, 1)
+            q := game.fish_frame(fish.kind, 1)
+            sprite = q[0]
         } else if FISH_ANIM_TIME * 2.0 / 3.0 <= time {
-            sprite = game.fish_frame(fish.kind, 2)
+            q := game.fish_frame(fish.kind, 2)
+            sprite = q[0]
         }
 
         pos := fish.world_pos!
@@ -67,7 +71,7 @@ fish_new :: fn pos: [float], layer: int -> Fish {
         x_pos := pos[0] / distance
         y_pos := pos[1] / distance
         w := scale
-        h := scale * 123.0 / 245.0
+        h := scale * aspect
 
         l_gfx_sprite! sprite, (0, 0), x_pos, y_pos, w, h
     }
