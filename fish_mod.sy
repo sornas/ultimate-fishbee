@@ -3,9 +3,11 @@ use game
 Fish :: blob {
     value: int
     pos: [float]
-    speed: [float]
+    vel: [float]
     height: int
     layer: int
+
+    kind: int
 
     update: fn float -> void
     draw: fn -> void
@@ -21,17 +23,19 @@ fish_list :: fn -> [Fish] {
 fish_new :: fn pos: [float], layer: int -> Fish {
 
     PI := 3.1415
-    FISH_INIT_SPEED :: 2.5
+    FISH_INIT_SPEED :: 5.0
     FISH_ANIM_TIME :: 0.3
 
-    angle := l_random_range! PI * 2.0 / 5.0, PI * 3.0 / 5.0
+    angle := l_random_range! PI * 3.0 / 5.0, PI * 5.0 / 5.0
 
     fish :: Fish! {
-        value: 0,
+        value: 10,
         pos: pos,
-        speed: [FISH_INIT_SPEED * cos(angle), FISH_INIT_SPEED * sin(angle)],
+        vel: [FISH_INIT_SPEED * cos(angle), FISH_INIT_SPEED * sin(angle)],
         height: 0,
         layer: layer,
+
+        kind: l_random_range(0, 2),
 
         update: fn delta: float {},
         draw: fn {},
@@ -40,32 +44,40 @@ fish_new :: fn pos: [float], layer: int -> Fish {
     }
 
     fish.update = fn delta: float {
-        fish.pos[0] += fish.speed[0] * delta
-        fish.pos[1] += fish.speed[1] * delta
+        fish.pos[0] += fish.vel[0] * delta
+        fish.pos[1] += fish.vel[1] * delta
 
-        fish.speed[1] += -3.0 * delta
+        fish.vel[1] += -3.0 * delta
     }
 
     fish.draw = fn {
-        sprite := game.fish_frame(0)
+        bundle := game.fish_frame(fish.kind, 0)
+        sprite : !(str, int) = bundle[0]
+        aspect : !float = bundle[1]
 
         time := rem! l_time(), FISH_ANIM_TIME
         if FISH_ANIM_TIME / 3.0 < time && time < FISH_ANIM_TIME * 2.0 / 3.0 {
-            sprite = game.fish_frame(1)
+            q := game.fish_frame(fish.kind, 1)
+            sprite = q[0]
         } else if FISH_ANIM_TIME * 2.0 / 3.0 <= time {
-            sprite = game.fish_frame(2)
+            q := game.fish_frame(fish.kind, 2)
+            sprite = q[0]
         }
 
         pos := fish.world_pos!
 
         distance := abs! pos[2]
-        scale := 0.5 / distance
+        scale := 1.0 / distance
         x_pos := pos[0] / distance
         y_pos := pos[1] / distance
         w := scale
-        h := scale * 123.0 / 245.0
+        h := scale * aspect
 
-        l_gfx_sprite! sprite, (0, 0), x_pos, y_pos, w, h
+        vx := fish.vel[0]
+        vy := fish.vel[1]
+        angle := atan2! vy, -vx
+
+        l_gfx_sprite! sprite, (0, 0), x_pos, y_pos, w, h, angle
     }
 
     fish.hit = fn {
@@ -76,8 +88,8 @@ fish_new :: fn pos: [float], layer: int -> Fish {
     fish.world_pos = fn -> [float] {
         ret [
             fish.pos[0],
-            fish.pos[1],
-            1.5 + as_float(fish.layer) * 2.0,
+            fish.pos[1] + as_float(fish.layer) * 1.0,
+            3.0 + as_float(fish.layer) * 5.0,
         ]
     }
 
@@ -87,7 +99,7 @@ fish_new :: fn pos: [float], layer: int -> Fish {
 fish_filter :: fn fishes: [Fish] -> [Fish] {
     valid_i := -1
     for i := 0, i < len(fishes), i += 1 {
-        if fishes[i].pos[1] >= -20.0 {
+        if fishes[i].pos[1] >= -5.0 {
             valid_i = i
             break
         }
