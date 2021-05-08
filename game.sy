@@ -14,6 +14,7 @@ fish_frame :: fn index: int -> (str, int) {
 
 fishes := fish_mod.fish_list!
 frisbee := frisbee_mod.new! 1.0, 1.0, 1.0, 1.0
+prev_thrown := false
 
 frisbee_accents := [
     [
@@ -48,6 +49,8 @@ frisbee_accent :: fn type: int, index: int -> (str, int) {
     ret frisbee_accents[type][index]
 }
 
+frisbee_stack := 5
+
 init :: fn {
     l_bind_quit("quit")
     l_bind_key("ESCAPE", "quit")
@@ -64,6 +67,15 @@ init :: fn {
 update :: fn delta: float -> void {
 
     frisbee.update! delta
+
+    if prev_thrown && !frisbee.thrown {
+        frisbee_stack -= 1
+        if frisbee_stack < 0 { // Lose? Do something!!
+            frisbee_stack = 0
+        }
+    }
+
+    prev_thrown = frisbee.thrown
 
     i := 0
     for q := 0, i < len(fishes), i += 1 {
@@ -104,6 +116,15 @@ draw :: fn {
                 fishes[i].draw!
             }
         }
+    }
+
+    stack_x := -0.65
+    stack_y := -0.8
+
+    for i := 0, i < frisbee_stack, i += 1 {
+        y := stack_y + 0.1 * as_float(i)
+        f := frisbee_mod.new(1.0, 1.0, 1.0, 1.0)
+        f.draw_stacked! stack_x, y
     }
 
     frisbee.draw!
