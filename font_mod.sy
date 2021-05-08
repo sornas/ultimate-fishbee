@@ -1,0 +1,48 @@
+use game
+
+glyph_id_num :: fn n: int -> (int, int) {
+    if n < 0 || n > 9 {
+        print "number not in range:"
+        print n
+        ret (13, 0)
+    }
+    ret (n, 0)
+}
+
+glyph_id_const :: fn c: int -> (int, int) {
+    if c < 0 || c > 1 {
+        print "constant not in range:"
+        print c
+        ret (13, 0)
+    }
+    ret (10 + c, 0)
+}
+
+draw_num :: fn x: float, y: float, scale: float, prefix: int, number: int, suffix: int -> void {
+    x := x
+    number := clamp(number, 0, 9999)
+    kern_x := scale / 1.3
+
+    if prefix >= 0 {
+        l_gfx_sprite! game.font(), glyph_id_const(prefix), (x, y), (scale, scale)
+        x += kern_x
+    }
+
+    drawing := false
+    for part in [rem(number / 1000, 10), rem(number / 100, 10), rem(number / 10, 10), rem(number, 10)] {
+        if !drawing && part == 0 {
+            continue
+        }
+        drawing = true
+        l_gfx_sprite! game.font(), glyph_id_num(part), (x, y), (scale, scale)
+        x += kern_x
+    }
+    if number == 0 {
+        l_gfx_sprite! game.font(), glyph_id_num(number), (x, y), (scale, scale)
+        y += kern_x
+    }
+
+    if suffix >= 0 {
+        l_gfx_sprite! game.font(), glyph_id_const(suffix), (x, y), (scale, scale)
+    }
+}

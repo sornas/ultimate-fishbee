@@ -1,6 +1,17 @@
 use fish_mod
+use font_mod
 use frisbee_mod
 use store_mod
+
+font_sprite := l_load_image("src/res/font.png", (11, 11))
+font :: fn -> (str, int) {
+    ret font_sprite
+}
+
+FONT_DOLLAR    := 0
+FONT_PLUS      := 1
+// FONT_MINUS     := 2
+// FONT_QUESTION  := 3
 
 fish_frames := [
     l_load_image("src/res/frisbee_spikes1.png", (245, 123)),
@@ -197,6 +208,8 @@ start :: fn {
             update_store! l_delta()
             draw_store!
         }
+
+        font_mod.draw_num! 0.5, 0.0, 0.1, FONT_PLUS, 205, FONT_DOLLAR
 
         l_render!
     }
