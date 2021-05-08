@@ -1,5 +1,6 @@
 use fish_mod
 use frisbee_mod
+use store_mod
 
 fish_frames := [
     l_load_image("src/res/frisbee_spikes1.png", (245, 123)),
@@ -11,10 +12,20 @@ fish_frame :: fn index: int -> (str, int) {
     ret fish_frames[index]
 }
 
-fish_goal := 2
 fishes := fish_mod.fish_list!
+frisbee_stack := frisbee_mod.stack!
 frisbee := frisbee_mod.new! 1.0, 1.0, 1.0, 1.0
 prev_thrown := false
+
+GAME_STATE_PLAYING := 0
+GAME_STATE_STORE := 1
+// GAME_STATE_MENU := 2
+
+game_state := 0
+
+set_game_state :: fn state: int {
+    game_state = state
+}
 
 frisbee_accents := [
     [
@@ -49,27 +60,46 @@ frisbee_accent :: fn type: int, index: int -> (str, int) {
     ret frisbee_accents[type][index]
 }
 
-frisbee_stack := 5
+money := 25
+
+pay :: fn price: int -> bool {
+    if price <= money {
+        money -= price
+        ret true
+    }
+    ret false
+}
+
+buy_frisbee :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> void {
+    push! frisbee_stack, frisbee_mod.new(weight, bounciness, reusable, accuracy)
+}
 
 init :: fn {
+    pop! frisbee_stack
+
+    buy_frisbee! 1.0, 1.0, 1.0, 1.0
+    buy_frisbee! 1.0, 1.0, 1.0, 1.0
+    buy_frisbee! 1.0, 1.0, 1.0, 1.0
+
     l_bind_quit("quit")
     l_bind_key("ESCAPE", "quit")
 
     l_bind_mouse! "left", "hold"
     l_bind_key! "e", "hold"
 
-
+    l_bind_key! "s", "store"
 }
 
-update :: fn delta: float -> void {
+update_game :: fn delta: float -> void {
 
     frisbee.update! delta
 
+    if l_input_down("store") {
+        game_state = GAME_STATE_STORE
+    }
+
     if prev_thrown && !frisbee.thrown {
-        frisbee_stack -= 1
-        if frisbee_stack < 0 { // Lose? Do something!!
-            frisbee_stack = 0
-        }
+        pop! frisbee_stack
     }
 
     prev_thrown = frisbee.thrown
@@ -99,7 +129,7 @@ update :: fn delta: float -> void {
     fishes = fish_mod.fish_filter! fishes
 
     // Spawn fish
-    fish_goal = 2 + as_int( l_time() / 30.0)
+    fish_goal := 2 + as_int( l_time() / 30.0)
     fish_delta := fish_goal - len! fishes
     for i := 0, i < fish_delta, i += 1 {
 
@@ -115,7 +145,7 @@ update :: fn delta: float -> void {
     }
 }
 
-draw :: fn {
+draw_game :: fn {
     for layer := 0, layer < 3, layer += 1 {
         //if layer == 0 {
         //    l_gfx_rect! (0.0, 0.0), (1.0, 1.0), (0.5, 0.5, 0.5)
@@ -130,10 +160,10 @@ draw :: fn {
     stack_x := -0.65
     stack_y := -0.8
 
-    for i := 0, i < frisbee_stack, i += 1 {
+    for i := 0, i < len(frisbee_stack), i += 1 {
         y := stack_y + 0.1 * as_float(i)
-        f := frisbee_mod.new(1.0, 1.0, 1.0, 1.0)
-        f.draw_stacked! stack_x, y
+        f := frisbee_stack[i]
+        f.draw_stacked! stack_x, y, 1.0
     }
 
     frisbee.draw!
@@ -143,6 +173,14 @@ start :: fn {
     print "start!"
     init!
 
+    fs := store_mod.store_init!
+
+    init_store : !fn -> void = fs[0]
+    update_store : !fn float -> void = fs[1]
+    draw_store : !fn -> void = fs[2]
+
+    init_store!
+
     for _ in inf(0) {
         _
         if l_input_down("quit") {
@@ -150,9 +188,16 @@ start :: fn {
         }
 
         l_update!
-        update! l_delta!
 
-        draw!
+        if game_state == GAME_STATE_PLAYING {
+            update_game! l_delta!
+            draw_game!
+        }
+        if game_state == GAME_STATE_STORE {
+            update_store! l_delta()
+            draw_store!
+        }
+
         l_render!
     }
 }

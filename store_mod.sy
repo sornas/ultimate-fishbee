@@ -1,0 +1,70 @@
+use frisbee_mod
+use game
+
+norm_mouse_pos :: fn -> (float, float) {
+    ret (as_float(l_mouse()) / as_float(l_window_size()) - (0.5, 0.5)) * (2.0, -2.0)
+}
+
+dist :: fn a: (float, float), b: (float, float) -> float {
+    ret sqrt! (a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1])
+}
+
+store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
+    for_sale := [[1.0, 1.0, 1.0, 1.0]]
+    prices := [0]
+    MAX_STORE_ITEMS := 6
+
+    calculate_price :: fn fb: [float] -> int {
+        ret 10
+    }
+
+    init :: fn {
+        empty! for_sale
+        empty! prices
+
+        for i := 0, i < MAX_STORE_ITEMS, i += 1 {
+            frisbee := [l_random(), l_random(), l_random(), l_random()]
+            push! for_sale, frisbee
+
+            price := calculate_price! frisbee
+            push! prices, price
+        }
+    }
+
+    update :: fn delta:float -> void {
+    }
+
+    draw :: fn -> void {
+
+        mouse_pos := norm_mouse_pos!
+
+        space := 0.55
+        offset_x := 1.0 * space
+        offset_y := 1.0 * space
+
+        W := MAX_STORE_ITEMS / 2
+        H := MAX_STORE_ITEMS / W
+        for x := 0, x < W, x += 1 {
+            for y := 0, y < H, y += 1 {
+                fb := for_sale[y * W + x]
+
+                draw_x := space * as_float(x) - offset_x
+                draw_y := space * as_float(y) - offset_y
+
+
+                d := dist((draw_x / 0.9, draw_y / 0.9), mouse_pos)
+                draw_z := clamp! d * 5.0, 0.8, 1.0
+
+                if l_input_released("hold") && d < 0.2 && game.pay(prices[y * W + x]) {
+                    game.buy_frisbee! fb[0], fb[1], fb[2], fb[3]
+                    game.set_game_state! 0 // GAME_STATE_PLAYING
+                }
+
+                f := frisbee_mod.new! fb[0], fb[1], fb[2], fb[3]
+                f.draw_stacked! draw_x, draw_y, draw_z
+            }
+        }
+    }
+
+    ret (init, update, draw)
+}
