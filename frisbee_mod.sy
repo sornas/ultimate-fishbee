@@ -191,7 +191,7 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
     }
 
     self.broken = fn -> bool {
-        ret as_float(self.throws) > (self.reusable + 0.1) * 4.3
+        ret as_float(self.throws) > (self.reusable + 0.1) * 2.5
     }
 
     self.reset = fn -> void {
