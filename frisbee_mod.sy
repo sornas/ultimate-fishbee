@@ -11,11 +11,14 @@ Frisbee :: blob {
     bounciness: float
     reusable: float
     accuracy: float
+    throws: int
 
     update: fn float -> void
     draw: fn -> void
     draw_stacked: fn float, float, float -> void
     out: fn -> bool
+    broken: fn -> bool
+    reset: fn -> void
 }
 
 vel_from_mouse_pos :: fn -> [float] {
@@ -61,10 +64,14 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
         reusable: reusable
         accuracy: accuracy
 
+        throws: 0
+
         update: fn delta: float -> void {}
         draw: fn -> void {}
         draw_stacked: fn x: float, y: float, z: float -> void {}
         out: fn -> bool { ret true }
+        broken: fn -> bool { ret true }
+        reset: fn -> void {}
     }
 
     pos_from_vel :: fn vel: [float] -> [float] {
@@ -107,6 +114,8 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
 
         if !self.thrown && l_input_released("hold") {
             self.thrown = true
+            self.throws += 1
+            self.vel[2] += l_random() * self.accuracy - 0.2
         }
 
         if self.thrown {
@@ -179,6 +188,14 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
     self.out = fn -> bool {
         distance := abs! self.pos[2]
         ret distance < 1.0 && self.vel[2] < 0.0
+    }
+
+    self.broken = fn -> bool {
+        ret as_float(self.throws) > (self.reusable + 0.1) * 4.3
+    }
+
+    self.reset = fn -> void {
+        self.thrown = false
     }
 
     ret self
