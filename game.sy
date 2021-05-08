@@ -127,11 +127,11 @@ update_game :: fn delta: float -> void {
             delta := [
                 fish_pos[0] - frisbee.pos[0],
                 0.0, // fish_pos[1] - frisbee.pos[1], // don't check y
-                fish_pos[2] - frisbee.pos[2],
+                (fish_pos[2] - frisbee.pos[2]) * 0.3,
             ]
 
             distance := sqrt! delta[0] * delta[0] + delta[1] * delta[1] + delta[2] * delta[2]
-            if distance < 0.4 {
+            if distance < 0.5 {
                 frisbee.vel[0] *= -1.0 * frisbee.bounciness
                 fish.hit!
                 money += fish.value
@@ -145,7 +145,7 @@ update_game :: fn delta: float -> void {
     // Spawn fish
     if l_random() < 0.03 {
         width := 8.0
-        push! fishes, fish_mod.fish_new([l_random() * width - width / 2.0, 0.0], l_random_range(0, 2))
+        push! fishes, fish_mod.fish_new([l_random() * width - width / 2.0 + 3.0, -1.0], l_random_range(0, 2))
     }
 
     if frisbee.out() {

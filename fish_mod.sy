@@ -23,7 +23,7 @@ fish_list :: fn -> [Fish] {
 fish_new :: fn pos: [float], layer: int -> Fish {
 
     PI := 3.1415
-    FISH_INIT_SPEED :: 2.5
+    FISH_INIT_SPEED :: 5.0
     FISH_ANIM_TIME :: 0.3
 
     angle := l_random_range! PI * 3.0 / 5.0, PI * 5.0 / 5.0
@@ -73,10 +73,9 @@ fish_new :: fn pos: [float], layer: int -> Fish {
         w := scale
         h := scale * aspect
 
-        vx : !float = fish.vel[0]
-        vy : !float = fish.vel[1]
-        angle : !float = atan2(vy, -vx)
-        dbg! ("----", vx, vy, angle)
+        vx := fish.vel[0]
+        vy := fish.vel[1]
+        angle := atan2! vy, -vx
 
         l_gfx_sprite! sprite, (0, 0), x_pos, y_pos, w, h, angle
     }
@@ -90,7 +89,7 @@ fish_new :: fn pos: [float], layer: int -> Fish {
         ret [
             fish.pos[0],
             fish.pos[1] + as_float(fish.layer) * 1.0,
-            3.0 + as_float(fish.layer) * 3.0,
+            3.0 + as_float(fish.layer) * 5.0,
         ]
     }
 
@@ -100,7 +99,7 @@ fish_new :: fn pos: [float], layer: int -> Fish {
 fish_filter :: fn fishes: [Fish] -> [Fish] {
     valid_i := -1
     for i := 0, i < len(fishes), i += 1 {
-        if fishes[i].pos[1] >= -20.0 {
+        if fishes[i].pos[1] >= -5.0 {
             valid_i = i
             break
         }

@@ -31,12 +31,12 @@ vel_from_mouse_pos :: fn -> [float] {
     x: !int = mouse_pos[0]
     y: !int = mouse_pos[1]
 
-    SCALING :: 0.2
+    SCALING :: 0.03
 
     ret [
         clamp(-as_float(x - WINDOW_DIM_X / 2) * SCALING, -30.0, 30.0),
         2.0,
-        clamp(as_float(y - WINDOW_DIM_Y / 2) * SCALING, 0.0, 30.0),
+        clamp(as_float(y - WINDOW_DIM_Y / 2) * SCALING, 0.0, 15.0),
     ]
 }
 
