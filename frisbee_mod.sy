@@ -12,8 +12,6 @@ Frisbee :: blob {
     reusable: float
     accuracy: float
 
-    time: float
-
     update: fn float -> void
     draw: fn -> void
     out: fn -> bool
@@ -61,8 +59,6 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
         reusable: reusable
         accuracy: accuracy
 
-        time: 0.0
-
         update: fn delta: float -> void {}
         draw: fn -> void {}
         out: fn -> bool { ret true }
@@ -77,10 +73,6 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
     }
 
     self.update = fn delta: float -> void {
-        self.time += delta
-        if self.time > ANIM_TIME {
-            self.time -= ANIM_TIME
-        }
         if !self.thrown && l_input_down("hold") {
             self.vel = vel_from_mouse_pos!
             self.pos = pos_from_vel! self.vel
@@ -100,7 +92,7 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
             } else {
                 self.vel[0] -= self.pos[0] * abs(self.pos[0]) * self.weight * delta
             }
-            self.vel[1] -= self.pos[1] * self.weight * delta
+            self.vel[1] = 0.0
             self.vel[2] -= self.pos[2] * self.weight * delta
         }
     }
@@ -111,9 +103,10 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
         distance := abs! pos[2]
 
         accent := game.frisbee_accent(0, 0)
-        if ANIM_TIME / 3.0 < self.time && self.time < ANIM_TIME * 2.0 / 3.0 {
+        time := rem! l_time(), ANIM_TIME
+        if ANIM_TIME / 3.0 < time && time < ANIM_TIME * 2.0 / 3.0 {
             accent = game.frisbee_accent(0, 1)
-        } else if ANIM_TIME * 2.0 / 3.0 <= self.time {
+        } else if ANIM_TIME * 2.0 / 3.0 <= time {
             accent = game.frisbee_accent(0, 2)
         }
 
