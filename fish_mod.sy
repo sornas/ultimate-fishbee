@@ -27,7 +27,7 @@ fish_new :: fn pos: [float], layer: int -> Fish {
     angle := l_random_range! PI * 2.0 / 5.0, PI * 3.0 / 5.0
 
     fish :: Fish! {
-        value: 0,
+        value: 10,
         pos: pos,
         speed: [FISH_INIT_SPEED * cos(angle), FISH_INIT_SPEED * sin(angle)],
         height: 0,
