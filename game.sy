@@ -118,7 +118,9 @@ update_game :: fn delta: float -> void {
             if distance < 0.4 {
                 frisbee.vel[0] *= -1.0 * frisbee.bounciness
                 fish.hit!
-                print "HIT!"
+                money += fish.value
+                print "MONEY:"
+                print money
             }
         }
     }
