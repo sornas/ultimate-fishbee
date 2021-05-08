@@ -97,12 +97,12 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
     self.draw = fn -> void {
         pos := self.pos
 
-        distance := sqrt! pos[2] * pos[2]
+        distance := abs! pos[2]
         l_gfx_rect! pos[0] / distance, pos[1] / distance, 0.5 / distance, 0.5 / distance, (0.5, 0.2, 0.2)
     }
 
     self.out = fn -> bool {
-        distance := self.pos[2] * self.pos[2]
+        distance := abs! self.pos[2]
         ret distance < 1.0 && self.vel[2] < 0.0
     }
 
