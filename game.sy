@@ -50,12 +50,16 @@ frisbee_accent :: fn type: int, index: int -> (str, int) {
     ret frisbee_accents[type][index]
 }
 
+buy_frisbee :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> void {
+    push! frisbee_stack, frisbee_mod.new(weight, bounciness, reusable, accuracy)
+}
+
 init :: fn {
     pop! frisbee_stack
 
-    push! frisbee_stack, frisbee_mod.new(1.0, 1.0, 1.0, 1.0)
-    push! frisbee_stack, frisbee_mod.new(1.0, 1.0, 1.0, 1.0)
-    push! frisbee_stack, frisbee_mod.new(1.0, 1.0, 1.0, 1.0)
+    buy_frisbee! 1.0, 1.0, 1.0, 1.0
+    buy_frisbee! 1.0, 1.0, 1.0, 1.0
+    buy_frisbee! 1.0, 1.0, 1.0, 1.0
 
     l_bind_quit("quit")
     l_bind_key("ESCAPE", "quit")
