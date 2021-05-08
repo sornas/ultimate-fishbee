@@ -1,0 +1,98 @@
+Frisbee :: blob {
+    // A 3D position
+    pos: [float]
+    vel: [float]
+
+    thrown: bool
+
+    weight: float
+    bounciness: float
+    reusable: float
+    accuracy: float
+
+    update: fn float -> void
+    draw: fn -> void
+    out: fn -> bool
+}
+
+vel_from_mouse_pos :: fn -> [float] {
+    WINDOW_DIM_X :: 500
+    WINDOW_DIM_Y :: 500
+
+    mouse_pos := l_mouse!
+
+    x: !int = mouse_pos[0]
+    y: !int = mouse_pos[1]
+
+    SCALING :: 0.2
+
+    ret [
+        as_float(x - WINDOW_DIM_X / 2) * SCALING,
+        2.0,
+        as_float(y - WINDOW_DIM_Y / 2) * SCALING,
+    ]
+}
+
+sign :: fn x: float -> float {
+    if x < 0.0 {
+        ret -1.0
+    }
+    ret 1.0
+}
+
+new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> Frisbee {
+    self := Frisbee! {
+        pos: [0.0, 0.0, 0.0]
+        vel: [0.0, 0.0, 0.0]
+
+        thrown: false
+
+        weight: weight
+        bounciness: bounciness
+        reusable: reusable
+        accuracy: accuracy
+
+        update: fn delta: float -> void {}
+        draw: fn -> void {}
+        out: fn -> bool { ret true }
+    }
+
+    self.update = fn delta: float -> void {
+        if !self.thrown && l_input_released("hold") {
+            self.vel = vel_from_mouse_pos!
+            self.thrown = true
+        }
+
+        if self.thrown {
+            self.pos[0] += self.vel[0] * delta
+            self.pos[1] += self.vel[1] * delta
+            self.pos[2] += self.vel[2] * delta
+
+            if self.vel[2] < 0.0 {
+                self.vel[0] -= self.pos[0] * self.weight * delta
+            } else {
+                self.vel[0] -= self.pos[0] * abs(self.pos[0]) * self.weight * delta
+            }
+            self.vel[1] -= self.pos[1] * self.weight * delta
+            self.vel[2] -= self.pos[2] * self.weight * delta
+        }
+    }
+
+    self.draw = fn -> void {
+        if l_input_down("hold") {
+            // TODO(ed): Get offset and draw it   
+        }
+
+        distance := sqrt! self.pos[2] * self.pos[2]
+        l_gfx_rect! self.pos[0] / distance, self.pos[1] / distance, 1.0 / distance, 1.0 / distance, (0.5, 0.2, 0.2)
+    }
+
+    self.out = fn -> bool {
+        distance := self.pos[2] * self.pos[2]
+        ret distance < 1.0 && self.vel[2] < 0.0
+    }
+
+    ret self
+}
+
+
