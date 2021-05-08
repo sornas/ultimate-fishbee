@@ -1,9 +1,9 @@
 use fish_mod
-use fisbee_mod
+use frisbee_mod
 
 fishes := [fish_mod.fish_new([-100.0, -100.0])]
 
-frisbee := fisbee_mod.new(1.0, 1.0, 1.0, 1.0)
+frisbee := frisbee_mod.new(1.0, 1.0, 1.0, 1.0)
 
 init :: fn {
     l_bind_quit("quit")
@@ -29,7 +29,7 @@ update :: fn delta: float -> void {
     frisbee.update! delta
 
     if frisbee.out() {
-        frisbee = fisbee_mod.new! 1.0, 1.0, 1.0, 1.0
+        frisbee = frisbee_mod.new! 1.0, 1.0, 1.0, 1.0
     }
 }
 
