@@ -2,6 +2,7 @@ use fish_mod
 use font_mod
 use frisbee_mod
 use store_mod
+use curtain_mod
 
 font_sprite := l_load_image("src/res/font.png", (11, 11))
 font :: fn -> (str, int) {
@@ -87,6 +88,50 @@ frisbee_accent :: fn type: int, index: int -> (str, int) {
     ret frisbee_accents[type][index]
 }
 
+_curtain_full :: l_load_image("res/curtain_full.png", (512, 512))
+_curtain_edge :: l_load_image("res/curtain_edge.png", (512, 512))
+
+curtain_full :: fn -> (str, int) {
+    ret _curtain_full
+}
+
+curtain_edge :: fn -> (str, int) {
+    ret _curtain_edge
+}
+
+curtain_pos := 2.0
+curtain_vel := 0.0
+_curtain_on_complete := fn {}
+
+get_curtain_pos :: fn -> float {
+    ret curtain_pos
+}
+
+set_curtain_pos :: fn pos: float {
+    curtain_pos = pos
+}
+
+get_curtain_vel :: fn -> float {
+    ret curtain_vel
+}
+
+set_curtain_vel :: fn vel: float {
+    curtain_vel = vel
+}
+
+curtain_on_complete :: fn {
+    _curtain_on_complete()
+}
+
+start_transition :: fn down: bool, on_complete: fn -> void {
+    if down {
+        curtain_vel = -1.0
+    } else {
+        curtain_vel = 1.0
+    }
+    _curtain_on_complete = on_complete
+}
+
 money := 25
 
 pay :: fn price: int -> bool {
@@ -115,6 +160,8 @@ init :: fn {
     l_bind_key! "e", "hold"
 
     l_bind_key! "s", "store"
+
+    start_transition! true, fn {}
 }
 
 update_game :: fn delta: float -> void {
@@ -249,6 +296,9 @@ start :: fn {
         }
 
         font_mod.draw_num! 0.5, 0.0, 0.1, FONT_PLUS, 205, FONT_DOLLAR
+
+        curtain_mod.curtain_update! l_delta()
+        curtain_mod.curtain_draw!
 
         l_render!
     }
