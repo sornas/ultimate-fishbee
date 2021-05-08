@@ -1,5 +1,13 @@
 use frisbee_mod
 
+norm_mouse_pos :: fn -> (float, float) {
+    ret (as_float(l_mouse()) / as_float(l_window_size()) - (0.5, 0.5)) * (2.0, -2.0)
+}
+
+dist :: fn a: (float, float), b: (float, float) -> float {
+    ret sqrt! (a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1])
+}
+
 store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
     for_sale := [[1.0, 1.0, 1.0, 1.0]]
     prices := [0.0]
@@ -23,19 +31,33 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
     }
 
     update :: fn delta:float -> void {
-
+        if l_input_pressed("hold") {
+            mouse_pos := norm_mouse_pos!
+            l_gfx_rect! mouse_pos, (0.1, 0.1)
+        }
     }
 
     draw :: fn -> void {
-        
+
+        mouse_pos := norm_mouse_pos!
+
+        space := 0.55
+        offset_x := 1.0 * space
+        offset_y := 1.0 * space
+
         W := MAX_STORE_ITEMS / 2
         H := MAX_STORE_ITEMS / W
         for x := 0, x < W, x += 1 {
             for y := 0, y < H, y += 1 {
                 fb := for_sale[y * W + x]
 
+                draw_x := space * as_float(x) - offset_x
+                draw_y := space * as_float(y) - offset_y
+
+                draw_z := clamp! dist((draw_x / 0.9, draw_y / 0.9), mouse_pos) * 5.0, 0.8, 1.0
+
                 f := frisbee_mod.new! fb[0], fb[1], fb[2], fb[3]
-                f.draw_stacked! as_float(x), as_float(y)
+                f.draw_stacked! draw_x, draw_y, draw_z
             }
         }
     }

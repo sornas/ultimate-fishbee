@@ -14,7 +14,7 @@ Frisbee :: blob {
 
     update: fn float -> void
     draw: fn -> void
-    draw_stacked: fn float, float -> void
+    draw_stacked: fn float, float, float -> void
     out: fn -> bool
 }
 
@@ -63,7 +63,7 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
 
         update: fn delta: float -> void {}
         draw: fn -> void {}
-        draw_stacked: fn x: float, y: float -> void {}
+        draw_stacked: fn x: float, y: float, z: float -> void {}
         out: fn -> bool { ret true }
     }
 
@@ -125,8 +125,8 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
         l_gfx_sprite! game.frisbee_shadow(), si, x_pos, y_pos, w, h
     }
 
-    self.draw_stacked = fn x: float, y: float {
-        pos := [x, y, self.pos[2]]
+    self.draw_stacked = fn x: float, y: float, z: float {
+        pos := [x, y, z]
 
         distance := abs! pos[2]
 

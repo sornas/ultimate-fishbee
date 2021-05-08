@@ -149,7 +149,7 @@ draw_game :: fn {
     for i := 0, i < len(frisbee_stack), i += 1 {
         y := stack_y + 0.1 * as_float(i)
         f := frisbee_stack[i]
-        f.draw_stacked! stack_x, y
+        f.draw_stacked! stack_x, y, 1.0
     }
 
     frisbee.draw!
