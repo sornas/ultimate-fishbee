@@ -1,9 +1,12 @@
+use game
+
 Fish :: blob {
     value: int
     pos: [float]
     speed: [float]
     height: int
     layer: int
+    time: float
 
     update: fn float -> void
     draw: fn -> void
@@ -13,6 +16,7 @@ fish_new :: fn pos: [float] -> Fish {
 
     PI := 3.1415
     FISH_INIT_SPEED :: 2.5
+    FISH_ANIM_TIME :: 0.3
 
     angle := l_random_range! PI * 2.0 / 5.0, PI * 3.0 / 5.0
 
@@ -22,6 +26,7 @@ fish_new :: fn pos: [float] -> Fish {
         speed: [FISH_INIT_SPEED * cos(angle), FISH_INIT_SPEED * sin(angle)],
         height: 0,
         layer: 0,
+        time: 0.0,
         update: fn delta: float {},
         draw: fn {},
     }
@@ -31,10 +36,21 @@ fish_new :: fn pos: [float] -> Fish {
         fish.pos[1] += fish.speed[1] * delta
 
         fish.speed[1] += -3.0 * delta
+
+        fish.time += delta
+        if fish.time > FISH_ANIM_TIME {
+            fish.time -= FISH_ANIM_TIME
+        }
     }
 
     fish.draw = fn {
-        l_gfx_rect! (fish.pos[0], fish.pos[1]), (0.5, 0.5)
+        sprite := game.fish_frame(0)
+        if FISH_ANIM_TIME / 3.0 < fish.time && fish.time < FISH_ANIM_TIME * 2.0 / 3.0 {
+            sprite = game.fish_frame(1)
+        } else if FISH_ANIM_TIME * 2.0 / 3.0 <= fish.time {
+            sprite = game.fish_frame(2)
+        }
+        l_gfx_sprite! sprite, (0, 0), fish.pos[0], fish.pos[1], 1.0, 123.0 / 245.0
     }
 
     ret fish
@@ -61,3 +77,4 @@ fish_filter :: fn fishes: [Fish] -> [Fish] {
     }
     ret new_fishes
 }
+
