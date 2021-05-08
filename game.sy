@@ -3,13 +3,21 @@ use frisbee_mod
 use store_mod
 
 fish_frames := [
-    l_load_image("src/res/frisbee_spikes1.png", (245, 123)),
-    l_load_image("src/res/frisbee_spikes2.png", (245, 123)),
-    l_load_image("src/res/frisbee_spikes3.png", (245, 123)),
+    l_load_image("res/fish1_1.png", (245, 123)),
+    l_load_image("res/fish1_2.png", (245, 123)),
+    l_load_image("res/fish1_3.png", (245, 123)),
+
+    l_load_image("res/fish2_1.png", (245, 123)),
+    l_load_image("res/fish2_2.png", (245, 123)),
+    l_load_image("res/fish2_3.png", (245, 123)),
+
+    l_load_image("res/fish3_1.png", (245, 123)),
+    l_load_image("res/fish3_2.png", (245, 123)),
+    l_load_image("res/fish3_3.png", (245, 123)),
 ]
 
-fish_frame :: fn index: int -> (str, int) {
-    ret fish_frames[index]
+fish_frame :: fn index: int, frame: int -> (str, int) {
+    ret fish_frames[index * 3 + frame]
 }
 
 fishes := fish_mod.fish_list!
@@ -29,24 +37,24 @@ set_game_state :: fn state: int {
 
 frisbee_accents := [
     [
-        l_load_image("src/res/frisbee_spikes1.png", (245, 123)),
-        l_load_image("src/res/frisbee_spikes2.png", (245, 123)),
-        l_load_image("src/res/frisbee_spikes3.png", (245, 123)),
+        l_load_image("res/frisbee_spikes1.png", (245, 123)),
+        l_load_image("res/frisbee_spikes2.png", (245, 123)),
+        l_load_image("res/frisbee_spikes3.png", (245, 123)),
     ],
     [
-        l_load_image("src/res/frisbee_dots1.png", (245, 123)),
-        l_load_image("src/res/frisbee_dots2.png", (245, 123)),
-        l_load_image("src/res/frisbee_dots3.png", (245, 123)),
+        l_load_image("res/frisbee_dots1.png", (245, 123)),
+        l_load_image("res/frisbee_dots2.png", (245, 123)),
+        l_load_image("res/frisbee_dots3.png", (245, 123)),
     ],
     [
-        l_load_image("src/res/frisbee_wave1.png", (245, 123)),
-        l_load_image("src/res/frisbee_wave2.png", (245, 123)),
-        l_load_image("src/res/frisbee_wave3.png", (245, 123)),
+        l_load_image("res/frisbee_wave1.png", (245, 123)),
+        l_load_image("res/frisbee_wave2.png", (245, 123)),
+        l_load_image("res/frisbee_wave3.png", (245, 123)),
     ],
 ]
 
-_frisbee_base :: l_load_image("src/res/frisbee_base.png", (245, 123))
-_frisbee_shadow :: l_load_image("src/res/frisbee_shadow.png", (245, 123))
+_frisbee_base :: l_load_image("res/frisbee_base.png", (245, 123))
+_frisbee_shadow :: l_load_image("res/frisbee_shadow.png", (245, 123))
 
 frisbee_base :: fn -> (str, int) {
     ret _frisbee_base
@@ -127,16 +135,10 @@ update_game :: fn delta: float -> void {
     fishes = fish_mod.fish_filter! fishes
 
     // Spawn fish
-    fish_goal := 2 + as_int( l_time() / 30.0)
-    fish_delta := fish_goal - len! fishes
-    for i := 0, i < fish_delta, i += 1 {
-
-        if (l_random() * 100.0) < 0.1 {
-            push! fishes, fish_mod.fish_new([l_random()*0.5, l_random()*0.5], l_random_range(0 ,1))
-            break
-        }
+    if l_random() < 0.03 {
+        width := 8.0
+        push! fishes, fish_mod.fish_new([l_random() * width - width / 2.0, 0.0], l_random_range(0, 2))
     }
-
 
     if frisbee.out() {
         if frisbee.broken() {
