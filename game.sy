@@ -11,7 +11,7 @@ fish_frame :: fn index: int -> (str, int) {
     ret fish_frames[index]
 }
 
-
+fish_goal := 2
 fishes := fish_mod.fish_list!
 frisbee := frisbee_mod.new! 1.0, 1.0, 1.0, 1.0
 
@@ -56,9 +56,9 @@ init :: fn {
     l_bind_key! "e", "hold"
 
 
-    for i := 0, i < 2, i += 1 {
-        push! fishes, fish_mod.fish_new([0.0, 0.0], 0)
-    }
+    // for i := 0, i < 2, i += 1 {
+    //     push! fishes, fish_mod.fish_new([0.0, 0.0], 0)
+    // }
 }
 
 update :: fn delta: float -> void {
@@ -88,6 +88,18 @@ update :: fn delta: float -> void {
         }
     }
     fishes = fish_mod.fish_filter! fishes
+
+    // Spawn fish
+    fish_goal = 2 + as_int( l_time() / 30.0)
+    fish_delta := fish_goal - len! fishes
+    for i := 0, i < fish_delta, i += 1{
+
+        if (l_random() * 100.0) < 0.1 {
+            push! fishes, fish_mod.fish_new([l_random()*0.5, l_random()*0.5], l_random_range( 0 ,1))
+            break
+        }
+    }
+
 
     if frisbee.out() {
         frisbee = frisbee_mod.new! 1.0, 1.0, 1.0, 1.0
