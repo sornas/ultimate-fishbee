@@ -23,8 +23,9 @@ fish_frames := [
 ]
 
 fish_frame :: fn index: int, frame: int -> ((str, int), float) {
-    aspect := fish_dims[index][0] / fish_dims[index][1]
-    ret (fish_frames[index * 3 + frame], as_float(aspect))
+    w : !int = fish_dims[index][0]
+    h : !int = fish_dims[index][1]
+    ret (fish_frames[index * 3 + frame], as_float(h) / as_float(w))
 }
 
 fishes := fish_mod.fish_list!

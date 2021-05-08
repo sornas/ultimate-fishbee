@@ -67,12 +67,13 @@ fish_new :: fn pos: [float], layer: int -> Fish {
         pos := fish.world_pos!
 
         distance := abs! pos[2]
-        scale := 2.0 / distance
+        scale := 1.0 / distance
         x_pos := pos[0] / distance
         y_pos := pos[1] / distance
         w := scale
         h := scale * aspect
 
+        l_gfx_rect! x_pos, y_pos, w, h, (1.0, 0.0, 0.0, 0.2)
         l_gfx_sprite! sprite, (0, 0), x_pos, y_pos, w, h
     }
 
