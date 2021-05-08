@@ -950,6 +950,70 @@ impl Compiler {
         Self::find_and_capture_variable(name, self.frames_mut().iter_mut().rev())
     }
 
+    fn look_up(&mut self, name: &str) -> usize {
+        let mut name = name.to_string();
+        let mut ns = self.current_file().to_path_buf();
+        loop {
+            if self.peek() == Token::Dot {
+                self.eat();
+                let ctx = self.contextes.get(&ns);
+                let next = ctx.map(|x| x.namespace.get(&name)).flatten();
+
+                match next {
+                    Some(Name::Slot(i, _)) | Some(Name::Unknown(i, _)) => {
+                        syntax_error!(self, "Expected namespace '{}' found '{:?}'",
+                                            name, &self.constants[*i]);
+                        self.panic = false;
+                        return 0;
+                    }
+
+                    None => {
+                        syntax_error!(self, "Couldn't find anything for '{}'", name);
+                        self.panic = false;
+                        return 0;
+                    }
+
+                    Some(Name::Namespace(path)) => {
+                        ns = path.clone();
+                    }
+                }
+
+                name = if let Token::Identifier(name) = self.eat() {
+                    name
+                } else {
+                    syntax_error!(self, "Expected identifier after namespace access");
+                    return 0;
+                };
+            } else {
+                println!("B {}", name);
+
+                let ctx = self.contextes.get(&ns);
+                let next = ctx
+                    .map(|x| x.namespace.get(&name))
+                    .flatten();
+
+                match next {
+                    Some(Name::Slot(i, _)) | Some(Name::Unknown(i, _)) => {
+                        return *i;
+                    }
+
+                    None => {
+                        syntax_error!(self, "Couldn't find anything for '{}'", name);
+                        self.panic = false;
+                        return 0;
+                    }
+
+                    Some(Name::Namespace(path)) => {
+                        syntax_error!(self, "Found namespace when expecting value {:?}",
+                            path);
+                        self.panic = false;
+                        return 0;
+                    }
+                }
+            }
+        }
+    }
+
     fn find_constant(&mut self, name: &str) -> usize {
         match self.names_mut().entry(name.to_string()) {
             Entry::Occupied(entry) => match entry.get() {
@@ -1759,10 +1823,14 @@ impl Compiler {
                     "bool" => Ok(Type::Bool),
                     "str" => Ok(Type::String),
                     x => {
-                        let blob = self.find_constant(x);
-                        if let Value::Blob(blob) = &self.constants[blob] {
+                        let blob = self.look_up(x);
+                        println!("FOUND {} - {}", x, blob);
+                        let blob = &self.constants[blob];
+                        if let Value::Blob(blob) = blob {
                             Ok(Type::Instance(Rc::clone(blob)))
                         } else {
+                            syntax_error!(self, "Got unknown type: '{}'", x);
+                            self.panic = false;
                             // TODO(ed): This is kinda bad. If the type cannot
                             // be found it tries to infer it during runtime
                             // and doesn't verify it.
@@ -2121,9 +2189,14 @@ impl Compiler {
         let slot = self.define(main).unwrap();
         self.frame_mut().stack[slot].read = true;
 
-        for section in 0..self.sections.len() {
-            self.init_section(section);
-            let section = &mut self.sections[section];
+        self.sections.sort_by_key(
+            |x| if matches!(x.tokens.get(2), Some((Token::Blob, _))) { 0 } else { 1 }
+        );
+
+        let mut start_section = 0;
+        for section_id in 0..self.sections.len() {
+            self.init_section(section_id);
+            let section = &mut self.sections[section_id];
             match (
                 section.tokens.get(0),
                 section.tokens.get(1),
@@ -2141,6 +2214,11 @@ impl Compiler {
                     Some((Token::Fn, _)),
                 ) => {
                     let name = name.to_string();
+
+                    if name == "start" {
+                        start_section = section_id;
+                    }
+
                     self.forward_constant(name);
                 }
 
@@ -2197,6 +2275,8 @@ impl Compiler {
             if self.sections[section].faulty {
                 continue;
             }
+            let sec = &self.sections[section];
+            println!("SECTION :{} - {:?} - {:?}", section, sec.tokens.get(0), sec.path);
             while !matches!(self.peek(), Token::EOF | Token::Use) {
                 self.outer_statement(&mut block);
                 expect!(
@@ -2228,8 +2308,9 @@ impl Compiler {
             errors.into_iter().for_each(|e| self.error(e));
         }
 
-        self.init_section(0);
+        self.init_section(start_section);
         let constant = self.find_constant("start");
+        assert!(!matches!(self.constants[constant], Value::Unknown));
         add_op(self, &mut block, Op::Constant(constant));
         add_op(self, &mut block, Op::Call(0));
 
