@@ -100,8 +100,6 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
     self.draw = fn -> void {
         pos := self.pos
 
-        distance := abs! pos[2]
-
         accent := game.frisbee_accent(0, 0)
         time := rem! l_time(), ANIM_TIME
         if ANIM_TIME / 3.0 < time && time < ANIM_TIME * 2.0 / 3.0 {
@@ -110,6 +108,7 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
             accent = game.frisbee_accent(0, 2)
         }
 
+        distance := abs! pos[2]
         si := (0, 0)
         scale := 0.5 / distance
         x_pos := pos[0] / distance
