@@ -145,7 +145,7 @@ update_game :: fn delta: float -> void {
     // Spawn fish
     if l_random() < 0.03 {
         width := 8.0
-        push! fishes, fish_mod.fish_new([l_random() * width - width / 2.0 + 3.0, -1.0], l_random_range(0, 2))
+        push! fishes, fish_mod.fish_new([l_random() * width - width / 2.0 + 3.0, -3.0], l_random_range(0, 2))
     }
 
     if frisbee.out() {
@@ -162,8 +162,32 @@ update_game :: fn delta: float -> void {
     }
 }
 
+wave_sprite := l_load_image("res/water-wave-bigger.png", (128, 128))
+
+waves :: fn layer: int -> void {
+    layer := as_float(layer)
+    time := layer * 1.234 + l_time()
+
+    for i := -10, i <= 10, i += 1 {
+        scale := 0.9 / (layer + 1.0)
+        x := as_float(i) * scale + sin(time * 0.5) * 0.05
+
+        offset := layer / 3.0 - 0.7
+        if layer == 2.0 {
+            offset -= 0.1
+        }
+        y := offset + cos(time * 1.2) * 0.02
+        l_gfx_sprite! wave_sprite, (0, 0), x, y, scale, scale
+    }
+}
+
+water_background := l_load_image("res/water-no-detail.png", (128, 128))
+
 draw_game :: fn {
-    for layer := 2, layer > 0, layer -= 1 {
+    l_gfx_sprite! water_background, (0, 0), 0.0, -1.1, 2.0, 2.0
+
+    for layer := 2, layer >= 0, layer -= 1 {
+        waves(layer)
         for i := 0, i < len(fishes), i += 1 {
             if fishes[i].layer == layer {
                 fishes[i].draw!
@@ -186,7 +210,6 @@ draw_game :: fn {
 }
 
 start :: fn {
-    print "start!"
     init!
 
     fs := store_mod.store_init!
