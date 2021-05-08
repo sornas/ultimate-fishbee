@@ -10,6 +10,13 @@ Fish :: blob {
 
     update: fn float -> void
     draw: fn -> void
+
+    hit: fn -> void
+    world_pos: fn -> [float]
+}
+
+fish_list :: fn -> [Fish] {
+    ret [fish_new([-100.0, -100.0], 0)]
 }
 
 fish_new :: fn pos: [float], layer: int -> Fish {
@@ -27,8 +34,11 @@ fish_new :: fn pos: [float], layer: int -> Fish {
         height: 0,
         layer: layer,
         time: 0.0,
+
         update: fn delta: float {},
         draw: fn {},
+        hit: fn {},
+        world_pos: fn -> [float] { ret [0.0] },
     }
 
     fish.update = fn delta: float {
@@ -54,13 +64,26 @@ fish_new :: fn pos: [float], layer: int -> Fish {
         l_gfx_sprite! sprite, (0, 0), fish.pos[0], fish.pos[1], scale, scale * 123.0 / 245.0
     }
 
+    fish.hit = fn {
+        fish.pos[1] = -20.0
+        // TODO(ed): Do some particles here!
+    }
+
+    fish.world_pos = fn -> [float] {
+        ret [
+            fish.pos[0],
+            fish.pos[1],
+            as_float(fish.layer) * 2.0,
+        ]
+    }
+
     ret fish
 }
 
 fish_filter :: fn fishes: [Fish] -> [Fish] {
     valid_i := -1
     for i := 0, i < len(fishes), i += 1 {
-        if fishes[i].pos[1] > -20.0 {
+        if fishes[i].pos[1] >= -20.0 {
             valid_i = i
             break
         }
