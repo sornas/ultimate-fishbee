@@ -80,7 +80,7 @@ update :: fn delta: float -> void {
             ]
 
             distance := sqrt! delta[0] * delta[0] + delta[1] * delta[1] + delta[2] * delta[2]
-            if distance < 0.3 {
+            if distance < 0.4 {
                 frisbee.vel[0] *= -1.0 * frisbee.bounciness
                 fish.hit!
                 print "HIT!"

@@ -18,8 +18,9 @@ Frisbee :: blob {
 }
 
 vel_from_mouse_pos :: fn -> [float] {
-    WINDOW_DIM_X :: 500
-    WINDOW_DIM_Y :: 500
+    size := l_window_size!
+    WINDOW_DIM_X: !int = size[0]
+    WINDOW_DIM_Y: !int = size[1]
 
     mouse_pos := l_mouse!
 
@@ -29,9 +30,9 @@ vel_from_mouse_pos :: fn -> [float] {
     SCALING :: 0.2
 
     ret [
-        -as_float(x - WINDOW_DIM_X / 2) * SCALING,
+        clamp(-as_float(x - WINDOW_DIM_X / 2) * SCALING, -30.0, 30.0),
         2.0,
-        as_float(y - WINDOW_DIM_Y / 2) * SCALING,
+        clamp(as_float(y - WINDOW_DIM_Y / 2) * SCALING, 0.0, 30.0),
     ]
 }
 
@@ -100,8 +101,6 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
     self.draw = fn -> void {
         pos := self.pos
 
-        distance := abs! pos[2]
-
         accent := game.frisbee_accent(0, 0)
         time := rem! l_time(), ANIM_TIME
         if ANIM_TIME / 3.0 < time && time < ANIM_TIME * 2.0 / 3.0 {
@@ -110,6 +109,7 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
             accent = game.frisbee_accent(0, 2)
         }
 
+        distance := abs! pos[2]
         si := (0, 0)
         scale := 0.5 / distance
         x_pos := pos[0] / distance
