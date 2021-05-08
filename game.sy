@@ -11,9 +11,8 @@ fish_frame :: fn index: int -> (str, int) {
     ret fish_frames[index]
 }
 
-fishes := [fish_mod.fish_new([-100.0, -100.0], 0)]
-
-frisbee := frisbee_mod.new(1.0, 1.0, 1.0, 1.0)
+fishes := fish_mod.fish_list!
+frisbee := frisbee_mod.new! 1.0, 1.0, 1.0, 1.0
 
 init :: fn {
     l_bind_quit("quit")
@@ -29,15 +28,32 @@ init :: fn {
 }
 
 update :: fn delta: float -> void {
-    for i := 0, i < len(fishes), i += 1 {
-        fishes[i].update! delta
-    }
-    fishes = fish_mod.fish_filter! fishes
-    //print len(fishes)
-    //print l_mouse!
-    //print l_mouse_rel!
 
     frisbee.update! delta
+
+    i := 0
+    for q := 0, i < len(fishes), i += 1 {
+        q
+        fish := fishes[i]
+        fish.update! delta
+
+        if frisbee.thrown {
+            fish_pos := fish.world_pos!
+            delta := [
+                fish_pos[0] - frisbee.pos[0],
+                0.0, // fish_pos[1] - frisbee.pos[1], // don't check y
+                fish_pos[2] - frisbee.pos[2],
+            ]
+
+            distance := sqrt! delta[0] * delta[0] + delta[1] * delta[1] + delta[2] * delta[2]
+            if distance < 0.3 {
+                frisbee.vel[0] *= -1.0 * frisbee.bounciness
+                fish.hit!
+                print "HIT!"
+            }
+        }
+    }
+    fishes = fish_mod.fish_filter! fishes
 
     if frisbee.out() {
         frisbee = frisbee_mod.new! 1.0, 1.0, 1.0, 1.0
