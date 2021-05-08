@@ -82,6 +82,7 @@ update_game :: fn delta: float -> void {
     frisbee.update! delta
 
     if l_input_down("store") {
+        store_mod.init!
         game_state = GAME_STATE_STORE
     }
 
