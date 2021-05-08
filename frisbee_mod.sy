@@ -153,4 +153,7 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
     ret self
 }
 
+stack :: fn -> [Frisbee] {
+    ret [new(1.0, 1.0, 1.0, 1.0)]
+}
 

@@ -11,8 +11,9 @@ fish_frame :: fn index: int -> (str, int) {
     ret fish_frames[index]
 }
 
-fish_goal := 2
+
 fishes := fish_mod.fish_list!
+frisbee_stack := frisbee_mod.stack!
 frisbee := frisbee_mod.new! 1.0, 1.0, 1.0, 1.0
 prev_thrown := false
 
@@ -49,9 +50,13 @@ frisbee_accent :: fn type: int, index: int -> (str, int) {
     ret frisbee_accents[type][index]
 }
 
-frisbee_stack := 5
-
 init :: fn {
+    pop! frisbee_stack
+
+    push! frisbee_stack, frisbee_mod.new(1.0, 1.0, 1.0, 1.0)
+    push! frisbee_stack, frisbee_mod.new(1.0, 1.0, 1.0, 1.0)
+    push! frisbee_stack, frisbee_mod.new(1.0, 1.0, 1.0, 1.0)
+
     l_bind_quit("quit")
     l_bind_key("ESCAPE", "quit")
 
@@ -66,10 +71,7 @@ update :: fn delta: float -> void {
     frisbee.update! delta
 
     if prev_thrown && !frisbee.thrown {
-        frisbee_stack -= 1
-        if frisbee_stack < 0 { // Lose? Do something!!
-            frisbee_stack = 0
-        }
+        pop! frisbee_stack
     }
 
     prev_thrown = frisbee.thrown
@@ -99,7 +101,7 @@ update :: fn delta: float -> void {
     fishes = fish_mod.fish_filter! fishes
 
     // Spawn fish
-    fish_goal = 2 + as_int( l_time() / 30.0)
+    fish_goal := 2 + as_int( l_time() / 30.0)
     fish_delta := fish_goal - len! fishes
     for i := 0, i < fish_delta, i += 1 {
 
@@ -130,9 +132,9 @@ draw :: fn {
     stack_x := -0.65
     stack_y := -0.8
 
-    for i := 0, i < frisbee_stack, i += 1 {
+    for i := 0, i < len(frisbee_stack), i += 1 {
         y := stack_y + 0.1 * as_float(i)
-        f := frisbee_mod.new(1.0, 1.0, 1.0, 1.0)
+        f := frisbee_stack[i]
         f.draw_stacked! stack_x, y
     }
 
