@@ -234,8 +234,14 @@ waves :: fn layer: int -> void {
         if layer == 2.0 {
             offset -= 0.1
         }
+
+        scale_x := scale
+        if layer == 1.0 {
+            scale_x *= -1.0
+        }
+
         y := offset + cos(time * 1.2) * 0.02
-        l_gfx_sprite! wave_sprite, (0, 0), x, y, scale, scale
+        l_gfx_sprite! wave_sprite, (0, 0), x, y, scale_x, scale
     }
 }
 
