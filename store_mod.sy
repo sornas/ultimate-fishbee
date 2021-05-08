@@ -1,0 +1,7 @@
+
+update :: fn delta:float -> void {
+
+}
+
+draw :: fn -> void {
+}
