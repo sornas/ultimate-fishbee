@@ -18,8 +18,9 @@ Frisbee :: blob {
 }
 
 vel_from_mouse_pos :: fn -> [float] {
-    WINDOW_DIM_X :: 500
-    WINDOW_DIM_Y :: 500
+    size := l_window_size!
+    WINDOW_DIM_X: !int = size[0]
+    WINDOW_DIM_Y: !int = size[1]
 
     mouse_pos := l_mouse!
 
@@ -29,9 +30,9 @@ vel_from_mouse_pos :: fn -> [float] {
     SCALING :: 0.2
 
     ret [
-        -as_float(x - WINDOW_DIM_X / 2) * SCALING,
+        clamp(-as_float(x - WINDOW_DIM_X / 2) * SCALING, -30.0, 30.0),
         2.0,
-        as_float(y - WINDOW_DIM_Y / 2) * SCALING,
+        clamp(as_float(y - WINDOW_DIM_Y / 2) * SCALING, 0.0, 30.0),
     ]
 }
 
