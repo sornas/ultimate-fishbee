@@ -15,7 +15,7 @@ fish_frame :: fn index: int -> (str, int) {
 fishes := fish_mod.fish_list!
 frisbee_stack := frisbee_mod.stack!
 frisbee := frisbee_mod.new! 1.0, 1.0, 1.0, 1.0
-prev_thrown := false
+out_of_frisbees := false
 
 GAME_STATE_PLAYING := 0
 GAME_STATE_STORE := 1
@@ -92,17 +92,13 @@ init :: fn {
 
 update_game :: fn delta: float -> void {
 
-    frisbee.update! delta
+    if !out_of_frisbees {
+        frisbee.update! delta
+    }
 
     if l_input_down("store") {
         game_state = GAME_STATE_STORE
     }
-
-    if prev_thrown && !frisbee.thrown {
-        pop! frisbee_stack
-    }
-
-    prev_thrown = frisbee.thrown
 
     i := 0
     for q := 0, i < len(fishes), i += 1 {
@@ -141,7 +137,12 @@ update_game :: fn delta: float -> void {
 
 
     if frisbee.out() {
-        frisbee = frisbee_mod.new! 1.0, 1.0, 1.0, 1.0
+        if len(frisbee_stack) > 0 {
+            frisbee = pop! frisbee_stack
+            out_of_frisbees = false
+        } else {
+            out_of_frisbees = true
+        }
     }
 }
 
@@ -166,7 +167,9 @@ draw_game :: fn {
         f.draw_stacked! stack_x, y, 1.0
     }
 
-    frisbee.draw!
+    if !out_of_frisbees {
+        frisbee.draw!
+    }
 }
 
 start :: fn {
