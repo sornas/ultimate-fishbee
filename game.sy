@@ -23,6 +23,10 @@ GAME_STATE_STORE := 1
 
 game_state := 0
 
+set_game_state :: fn state: int {
+    game_state = state
+}
+
 frisbee_accents := [
     [
         l_load_image("src/res/frisbee_spikes1.png", (245, 123)),

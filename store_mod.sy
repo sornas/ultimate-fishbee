@@ -1,4 +1,5 @@
 use frisbee_mod
+use game
 
 norm_mouse_pos :: fn -> (float, float) {
     ret (as_float(l_mouse()) / as_float(l_window_size()) - (0.5, 0.5)) * (2.0, -2.0)
@@ -31,10 +32,6 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
     }
 
     update :: fn delta:float -> void {
-        if l_input_pressed("hold") {
-            mouse_pos := norm_mouse_pos!
-            l_gfx_rect! mouse_pos, (0.1, 0.1)
-        }
     }
 
     draw :: fn -> void {
@@ -54,7 +51,14 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
                 draw_x := space * as_float(x) - offset_x
                 draw_y := space * as_float(y) - offset_y
 
-                draw_z := clamp! dist((draw_x / 0.9, draw_y / 0.9), mouse_pos) * 5.0, 0.8, 1.0
+
+                d := dist((draw_x / 0.9, draw_y / 0.9), mouse_pos)
+                draw_z := clamp! d * 5.0, 0.8, 1.0
+
+                if l_input_released("hold") && d < 0.2 {
+                    game.buy_frisbee! fb[0], fb[1], fb[2], fb[3]
+                    game.set_game_state! 0 // GAME_STATE_PLAYING
+                }
 
                 f := frisbee_mod.new! fb[0], fb[1], fb[2], fb[3]
                 f.draw_stacked! draw_x, draw_y, draw_z
