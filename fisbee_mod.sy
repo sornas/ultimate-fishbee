@@ -27,7 +27,7 @@ vel_from_mouse_pos :: fn -> [float] {
     SCALING :: 0.2
 
     ret [
-        as_float(x - WINDOW_DIM_X / 2) * SCALING,
+        -as_float(x - WINDOW_DIM_X / 2) * SCALING,
         2.0,
         as_float(y - WINDOW_DIM_Y / 2) * SCALING,
     ]
@@ -41,8 +41,12 @@ sign :: fn x: float -> float {
 }
 
 new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> Frisbee {
+    POS_SCALE :: -0.02
+    OFFSET_Z :: 1.0
+    OFFSET_Y :: -0.2
+    
     self := Frisbee! {
-        pos: [0.0, 0.0, 0.0]
+        pos: [0.0, OFFSET_Y, OFFSET_Z]
         vel: [0.0, 0.0, 0.0]
 
         thrown: false
@@ -57,9 +61,21 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
         out: fn -> bool { ret true }
     }
 
+    pos_from_vel :: fn vel: [float] -> [float] {
+        ret [
+            vel[0] * POS_SCALE,
+            vel[1] * POS_SCALE + OFFSET_Y,
+            vel[2] * POS_SCALE + OFFSET_Z,
+        ]
+    }
+
     self.update = fn delta: float -> void {
-        if !self.thrown && l_input_released("hold") {
+        if !self.thrown && l_input_down("hold") {
             self.vel = vel_from_mouse_pos!
+            self.pos = pos_from_vel! self.vel
+        }
+
+        if !self.thrown && l_input_released("hold") {
             self.thrown = true
         }
 
@@ -79,12 +95,10 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
     }
 
     self.draw = fn -> void {
-        if l_input_down("hold") {
-            // TODO(ed): Get offset and draw it   
-        }
+        pos := self.pos
 
-        distance := sqrt! self.pos[2] * self.pos[2]
-        l_gfx_rect! self.pos[0] / distance, self.pos[1] / distance, 1.0 / distance, 1.0 / distance, (0.5, 0.2, 0.2)
+        distance := sqrt! pos[2] * pos[2]
+        l_gfx_rect! pos[0] / distance, pos[1] / distance, 0.5 / distance, 0.5 / distance, (0.5, 0.2, 0.2)
     }
 
     self.out = fn -> bool {
