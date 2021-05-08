@@ -12,7 +12,6 @@ fish_frame :: fn index: int -> (str, int) {
     ret fish_frames[index]
 }
 
-
 fishes := fish_mod.fish_list!
 frisbee_stack := frisbee_mod.stack!
 frisbee := frisbee_mod.new! 1.0, 1.0, 1.0, 1.0
@@ -82,7 +81,6 @@ update_game :: fn delta: float -> void {
     frisbee.update! delta
 
     if l_input_down("store") {
-        store_mod.init!
         game_state = GAME_STATE_STORE
     }
 
@@ -161,6 +159,14 @@ start :: fn {
     print "start!"
     init!
 
+    fs := store_mod.store_init!
+
+    init_store : !fn -> void = fs[0]
+    update_store : !fn float -> void = fs[1]
+    draw_store : !fn -> void = fs[2]
+
+    init_store!
+
     for _ in inf(0) {
         _
         if l_input_down("quit") {
@@ -174,8 +180,8 @@ start :: fn {
             draw_game!
         }
         if game_state == GAME_STATE_STORE {
-            store_mod.update(l_delta())
-            store_mod.draw()
+            update_store! l_delta()
+            draw_store!
         }
 
         l_render!

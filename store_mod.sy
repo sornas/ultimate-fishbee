@@ -1,40 +1,44 @@
 use frisbee_mod
 
-for_sale := [[1.0, 1.0, 1.0, 1.0]]
-prices := [0.0]
-MAX_STORE_ITEMS := 6
+store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
+    for_sale := [[1.0, 1.0, 1.0, 1.0]]
+    prices := [0.0]
+    MAX_STORE_ITEMS := 6
 
-calculate_price :: fn fb: [float] -> float {
-    ret 10.0
-}
-
-init :: fn {
-    empty! for_sale
-    empty! prices
-
-    for i := 0, i < MAX_STORE_ITEMS, i += 1 {
-        frisbee := [l_random(), l_random(), l_random(), l_random()]
-        push! for_sale, frisbee
-
-        price := calculate_price! frisbee
-        push! prices, price
+    calculate_price :: fn fb: [float] -> float {
+        ret 10.0
     }
-}
 
-update :: fn delta:float -> void {
+    init :: fn {
+        empty! for_sale
+        empty! prices
 
-}
+        for i := 0, i < MAX_STORE_ITEMS, i += 1 {
+            frisbee := [l_random(), l_random(), l_random(), l_random()]
+            push! for_sale, frisbee
 
-draw :: fn -> void {
-    
-    W := MAX_STORE_ITEMS / 2
-    H := MAX_STORE_ITEMS / W
-    for x := 0, x < W, x += 1 {
-        for y := 0, y < H, y += 1 {
-            fb := for_sale[y * W + x]
-
-            f := frisbee_mod.new! fb[0], fb[1], fb[2], fb[3]
-            f.draw_stacked! x, y
+            price := calculate_price! frisbee
+            push! prices, price
         }
     }
+
+    update :: fn delta:float -> void {
+
+    }
+
+    draw :: fn -> void {
+        
+        W := MAX_STORE_ITEMS / 2
+        H := MAX_STORE_ITEMS / W
+        for x := 0, x < W, x += 1 {
+            for y := 0, y < H, y += 1 {
+                fb := for_sale[y * W + x]
+
+                f := frisbee_mod.new! fb[0], fb[1], fb[2], fb[3]
+                f.draw_stacked! as_float(x), as_float(y)
+            }
+        }
+    }
+
+    ret (init, update, draw)
 }
