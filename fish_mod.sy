@@ -12,7 +12,7 @@ Fish :: blob {
     draw: fn -> void
 }
 
-fish_new :: fn pos: [float] -> Fish {
+fish_new :: fn pos: [float], layer: int -> Fish {
 
     PI := 3.1415
     FISH_INIT_SPEED :: 2.5
@@ -25,7 +25,7 @@ fish_new :: fn pos: [float] -> Fish {
         pos: pos,
         speed: [FISH_INIT_SPEED * cos(angle), FISH_INIT_SPEED * sin(angle)],
         height: 0,
-        layer: 0,
+        layer: layer,
         time: 0.0,
         update: fn delta: float {},
         draw: fn {},
@@ -50,7 +50,8 @@ fish_new :: fn pos: [float] -> Fish {
         } else if FISH_ANIM_TIME * 2.0 / 3.0 <= fish.time {
             sprite = game.fish_frame(2)
         }
-        l_gfx_sprite! sprite, (0, 0), fish.pos[0], fish.pos[1], 1.0, 123.0 / 245.0
+        scale := (1.0 + as_float(fish.layer)) / 3.0
+        l_gfx_sprite! sprite, (0, 0), fish.pos[0], fish.pos[1], scale, scale * 123.0 / 245.0
     }
 
     ret fish
@@ -66,7 +67,7 @@ fish_filter :: fn fishes: [Fish] -> [Fish] {
     }
 
     if valid_i == -1 {
-        ret [fish_new([-100.0, -100.0])]
+        ret [fish_new([-100.0, -100.0], 0)]
     }
 
     new_fishes := [fishes[valid_i]]
