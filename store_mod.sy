@@ -11,11 +11,11 @@ dist :: fn a: (float, float), b: (float, float) -> float {
 
 store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
     for_sale := [[1.0, 1.0, 1.0, 1.0]]
-    prices := [0.0]
+    prices := [0]
     MAX_STORE_ITEMS := 6
 
-    calculate_price :: fn fb: [float] -> float {
-        ret 10.0
+    calculate_price :: fn fb: [float] -> int {
+        ret 10
     }
 
     init :: fn {
@@ -55,7 +55,7 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
                 d := dist((draw_x / 0.9, draw_y / 0.9), mouse_pos)
                 draw_z := clamp! d * 5.0, 0.8, 1.0
 
-                if l_input_released("hold") && d < 0.2 {
+                if l_input_released("hold") && d < 0.2 && game.pay(prices[y * W + x]) {
                     game.buy_frisbee! fb[0], fb[1], fb[2], fb[3]
                     game.set_game_state! 0 // GAME_STATE_PLAYING
                 }

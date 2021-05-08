@@ -60,6 +60,16 @@ frisbee_accent :: fn type: int, index: int -> (str, int) {
     ret frisbee_accents[type][index]
 }
 
+money := 25
+
+pay :: fn price: int -> bool {
+    if price <= money {
+        money -= price
+        ret true
+    }
+    ret false
+}
+
 buy_frisbee :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> void {
     push! frisbee_stack, frisbee_mod.new(weight, bounciness, reusable, accuracy)
 }
