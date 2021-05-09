@@ -372,6 +372,9 @@ start :: fn {
     update_store : !fn float -> void = fs[1]
     draw_store : !fn -> void = fs[2]
 
+    audio := l_load_audio("sound.wav")
+    l_audio_play(audio, false, 1.0, 1.0)
+
     init_store!
     init_store_ = init_store
 
