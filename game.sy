@@ -5,6 +5,8 @@ use store_mod
 use curtain_mod
 use particles_mod
 
+init_store_ := fn -> void {}
+
 font_sprite := l_load_image("src/res/font.png", (11, 11))
 font :: fn -> (str, int) {
     ret font_sprite
@@ -168,6 +170,15 @@ init :: fn {
     l_bind_key! "s", "store"
 }
 
+goto_store :: fn -> void {
+    on_complete := fn {
+        set_game_state(1)
+    }
+    start_transition! true, on_complete
+
+    init_store_!
+}
+
 update_game :: fn delta: float -> void {
 
     if !out_of_frisbees {
@@ -175,10 +186,7 @@ update_game :: fn delta: float -> void {
     }
 
     if l_input_down("store") {
-        on_complete := fn {
-            set_game_state(1)
-        }
-        start_transition! true, on_complete
+        goto_store!
     }
 
     i := 0
@@ -275,8 +283,10 @@ waves :: fn layer: int -> void {
 
 
 boat_sprite := l_load_image("res/boat.png", (512, 512))
-
 water_background := l_load_image("res/water-no-detail.png", (128, 128))
+
+shop_button := l_load_image("res/shop_button.png", (35, 56))
+
 draw_game :: fn {
     l_gfx_sprite! water_background, (0, 0), 0.0, -1.1, 2.0, 2.0
 
@@ -313,7 +323,18 @@ draw_game :: fn {
     l_gfx_particle_render! water_particles
 
     draw_fish_money!
+
+    scale := 0.3
+    mouse := store_mod.norm_mouse_pos()
+    if mouse[0] > 0.70 && mouse[1] > 0.70 {
+        scale = 0.35
+        if l_input_released("hold") {
+            goto_store!
+        }
+    }
+    l_gfx_sprite! shop_button, (0, 0), 0.80, 1.0, scale, scale * (56.0 / 35.0), sin(l_time()) * 0.1
 }
+
 
 start :: fn {
     init!
@@ -325,6 +346,7 @@ start :: fn {
     draw_store : !fn -> void = fs[2]
 
     init_store!
+    init_store_ = init_store
 
     for _ in inf(0) {
         _
