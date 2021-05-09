@@ -1,4 +1,6 @@
 water_particles :: fn -> (str, int) {
+    PI :: 3.1415
+
     ps := l_gfx_particle_new!
     l_gfx_particle_lifetime! ps, (1.0, 1.0)
 
@@ -6,7 +8,10 @@ water_particles :: fn -> (str, int) {
     l_gfx_particle_start_sy! ps, (0.015, 0.02)
     l_gfx_particle_end_sx! ps, (0.0, 0.0)
     l_gfx_particle_end_sy! ps, (0.0, 0.0)
-    
+
+    l_gfx_particle_vel_angle! ps, (0.0 + PI/4.0, PI - PI/4.0)
+    l_gfx_particle_acc_angle! ps, (-PI/2.0, -PI/2.0)
+
     l_gfx_particle_start_color! ps, (1.0, 1.0, 1.0)
     l_gfx_particle_end_color! ps, (1.0, 1.0, 1.0)
 
