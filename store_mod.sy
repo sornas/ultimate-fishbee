@@ -18,7 +18,6 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
 
     inflation :: fn -> int {
         flate := l_random_range(2, 3) + baught_items * baught_items / 8
-        print flate
         ret flate
     }
 
