@@ -1,5 +1,9 @@
 use game
 
+layer_to_z :: fn layer: int -> float {
+    ret 2.0 + as_float(layer) * 3.0
+}
+
 Fish :: blob {
     value: int
     pos: [float]
@@ -26,7 +30,7 @@ fish_new :: fn pos: [float], layer: int -> Fish {
     FISH_INIT_SPEED :: 5.0
     FISH_ANIM_TIME :: 0.3
 
-    angle := l_random_range! PI * 3.0 / 5.0, PI * 5.0 / 5.0
+    angle := l_random_range! PI * 2.6 / 5.0, PI * 3.0 / 5.0
 
     fish: !Fish = nil
     fish = Fish! {
@@ -62,7 +66,7 @@ fish_new :: fn pos: [float], layer: int -> Fish {
             pos := fish.world_pos!
 
             distance := abs! pos[2]
-            scale := 1.0 / distance
+            scale := 0.5 / distance
             x_pos := pos[0] / distance
             y_pos := pos[1] / distance
             w := scale
@@ -83,7 +87,7 @@ fish_new :: fn pos: [float], layer: int -> Fish {
             ret [
                 fish.pos[0],
                 fish.pos[1] + as_float(fish.layer) * 1.0,
-                3.0 + as_float(fish.layer) * 5.0,
+                layer_to_z(fish.layer),
             ]
         }
     }
