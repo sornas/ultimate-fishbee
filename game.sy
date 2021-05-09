@@ -25,6 +25,17 @@ fish_dims := [
 
 water_particles := particles_mod.water_particles!
 
+
+last_wave := 0.0
+sounds := [
+    l_load_audio("res/Ultimate_Fishbee_Music.wav"),
+    l_load_audio("res/boomerang.wav"),
+    l_load_audio("res/fishbeeSwosh.wav"),
+    l_load_audio("res/klirr.wav"),
+    l_load_audio("res/rida.wav"),
+    l_load_audio("res/waves.wav"),
+]
+
 fish_frames := [
     l_load_image("res/fish1_1.png", (91, 236)),
     l_load_image("res/fish1_2.png", (91, 236)),
@@ -61,6 +72,7 @@ game_state := 0
 
 set_game_state :: fn state: int {
     game_state = state
+    l_audio_play(sounds[4], false, 1.0, 2.0)
 }
 
 frisbee_accents := [
@@ -191,9 +203,18 @@ goto_store :: fn -> void {
 
 update_game :: fn delta: float -> void {
 
+    if (l_random() < 0.01) && (l_time()- last_wave) > 10.0 {
+        l_audio_play(sounds[5], false, 1.0, 1.0)
+        last_wave = l_time!
+    }
+
     if !out_of_frisbees {
+        if !frisbee.thrown && l_input_released("hold") {
+            l_audio_play(sounds[1], false, 1.0, 1.0)
+        }
         frisbee.update! delta
     }
+
 
     if l_input_down("store") {
         goto_store!
@@ -216,6 +237,7 @@ update_game :: fn delta: float -> void {
             distance := sqrt! delta[0] * delta[0] + delta[1] * delta[1] + delta[2] * delta[2]
             if distance < 0.5 {
                 frisbee.vel[0] *= -1.0 * frisbee.bounciness
+                l_audio_play(sounds[3], false, 1.0, 2.0)
                 fish.hit!
                 money += fish.value
                 add_fish_money_text! fish.value
@@ -372,8 +394,8 @@ start :: fn {
     update_store : !fn float -> void = fs[1]
     draw_store : !fn -> void = fs[2]
 
-    audio := l_load_audio("sound.wav")
-    l_audio_play(audio, false, 1.0, 1.0)
+
+    l_audio_play(sounds[0], true, 0.0, 1.0)
 
     init_store!
     init_store_ = init_store
