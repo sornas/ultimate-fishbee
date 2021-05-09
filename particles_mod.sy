@@ -57,7 +57,7 @@ coin_particles :: fn -> (str, int) {
 }
 
 coin_at :: fn ps: (str, int), pos: [float] -> void {
-    size := 0.4 / pos[2]
+    size := 0.2 / pos[2]
     x := pos[0] / pos[2]
     y := pos[1] / pos[2]
 
