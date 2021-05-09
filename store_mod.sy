@@ -78,7 +78,7 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
                 }
                 font_x := draw_x - 0.05 + sin((l_time() + as_float(index)) * 1.23) * 0.03 * bobbing
                 font_y := draw_y + 0.10 + cos((l_time() + as_float(index)) * 1.9) * 0.03 * bobbing
-                font_mod.draw_num(font_x, font_y, 0.07, -1, prices[index], 0)
+                font_mod.draw_num_tint(font_x, font_y, 0.07, -1, prices[index], 0, (0.0, 0.0, 0.0, 0.9))
 
                 if l_input_released("hold") && d < 0.2 && game.pay(prices[index]) {
                     game.buy_frisbee! fb[0], fb[1], fb[2], fb[3]
