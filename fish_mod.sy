@@ -34,7 +34,7 @@ fish_new :: fn pos: [float], layer: int -> Fish {
 
     fish: !Fish = nil
     fish = Fish! {
-        value: 10,
+        value: 10 * (1 + layer),
         pos: pos,
         vel: [FISH_INIT_SPEED * cos(angle), FISH_INIT_SPEED * sin(angle)],
         height: 0,
