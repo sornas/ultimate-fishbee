@@ -75,6 +75,7 @@ frisbee_stack := frisbee_mod.stack!
 frisbee := frisbee_mod.new! 1.0, 1.0, 1.0, 1.0
 out_of_frisbees := false
 
+highscore := 0
 total_money := 0
 made_money := 0
 count_down := 0.0
@@ -181,6 +182,7 @@ keep_frame :: fn frame: int -> (str, int) {
 }
 
 start_button :: l_load_image("res/start_button.png", (41, 60))
+logo_text :: l_load_image("res/logo_text.png", (185, 70))
 
 money := 25
 
@@ -230,6 +232,7 @@ goto_store :: fn -> void {
 
 reset_game :: fn {
     money = 25
+    total_money = 0
     frisbee_stack = frisbee_mod.stack!
     clear! frisbee_stack
 
@@ -295,8 +298,6 @@ update_game :: fn delta: float -> void {
                 fish.hit!
                 money += fish.value
                 total_money += fish.value
-                // TODO(ed): Use the total money
-                total_money
                 add_fish_money_text! fish.value
 
                 fish.hit!
@@ -508,8 +509,6 @@ start :: fn {
     init_store!
     init_store_ = init_store
 
-    l_gfx_particle_spawn! party_system, 8000
-
     for _ in inf(0) {
         _
         if l_input_down("quit") {
@@ -532,18 +531,31 @@ start :: fn {
 
 
         if game_state == GAME_STATE_MENU {
+
+            if total_money > highscore {
+                highscore = total_money
+                total_money = 0
+                l_gfx_particle_spawn! party_system, 8000
+            }
+
+            if highscore != 0 {
+                tint := (215.0 / 255.0, 152.0 / 255.0, 11.0 / 255.0)
+                font_mod.draw_num_tint! -0.1, -0.7, 0.1, -1, highscore, -1, tint
+            }
+
             set_curtain_pos(-0.2)
             scale := sin(l_time() * 1.212) * 0.01
             dx := sin(l_time() * 1.777) * 0.02
             dy := cos(l_time() * 2.999) * 0.003
             l_gfx_sprite! start_button, (0, 0), scale + dx, scale + dy, 0.8 * 41.0 / 60.0, 0.8, sin(l_time()) * 0.1
+            l_gfx_sprite! logo_text, (0, 0), 0.0, 0.5, 1.5, 1.5 * 70.0 / 185.0, 0.0, (227.0 / 255.0, 183.0 / 255.0, 85.0 / 255.0)
             if l_input_released("hold") {
                 game_state = GAME_STATE_PLAYING
                 reset_game!
                 start_transition! false, fn {}
             }
         }
-        
+
         l_gfx_particle_update! party_system, l_delta!
         l_gfx_particle_render! party_system
 
