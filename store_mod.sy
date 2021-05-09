@@ -16,7 +16,6 @@ store_init :: fn -> (fn -> void, fn -> bool, fn -> void) {
     MAX_STORE_ITEMS := 6
 
     inflation :: fn -> int {
-        print game.bought_items()
         flate := l_random_range(2, 3) + game.bought_items() * game.bought_items() / 8
         ret flate
     }
