@@ -249,8 +249,10 @@ waves :: fn layer: int -> void {
     }
 }
 
-water_background := l_load_image("res/water-no-detail.png", (128, 128))
 
+boat_sprite := l_load_image("res/boat.png", (512, 512))
+
+water_background := l_load_image("res/water-no-detail.png", (128, 128))
 draw_game :: fn {
     l_gfx_sprite! water_background, (0, 0), 0.0, -1.1, 2.0, 2.0
 
@@ -263,9 +265,15 @@ draw_game :: fn {
         }
     }
 
-    stack_x := -0.65
-    stack_y := -0.8
+    offset_x := sin(2.6 * l_time()) * 0.04
+    offset_y := cos(1.743 * l_time()) * 0.04
+    for i := -10, i <= 10, i += 1 {
+        scale := 2.0
+        l_gfx_sprite! boat_sprite, (0, 0), as_float(i) * scale + offset_x, -1.5 + offset_y, scale, scale
+    }
 
+    stack_x := -0.65 + offset_x
+    stack_y := -0.8 + offset_y
     for i := 0, i < len(frisbee_stack), i += 1 {
         y := stack_y + 0.1 * as_float(i)
         f := frisbee_stack[i]
