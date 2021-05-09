@@ -50,6 +50,7 @@ frisbee_stack := frisbee_mod.stack!
 frisbee := frisbee_mod.new! 1.0, 1.0, 1.0, 1.0
 out_of_frisbees := false
 
+total_money := 0
 made_money := 0
 count_down := 0.0
 
@@ -218,6 +219,7 @@ update_game :: fn delta: float -> void {
                 frisbee.vel[0] *= -1.0 * frisbee.bounciness
                 fish.hit!
                 money += fish.value
+                total_money += fish.value
                 add_fish_money_text! fish.value
             }
         }
