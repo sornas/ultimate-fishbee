@@ -20,7 +20,7 @@ curtain_update :: fn delta: float {
 
     pos := game.get_curtain_pos()
     vel := game.get_curtain_vel()
-    game.set_curtain_pos(clamp(pos + 4.0 * delta * vel, MIN_POS, MAX_POS))
+    game.set_curtain_pos(clamp(pos + 0.66 * delta * vel, MIN_POS, MAX_POS))
 
     if vel < 0.0 && pos == MIN_POS {
         game.set_curtain_vel(1.0)

@@ -112,9 +112,6 @@ set_curtain_pos :: fn pos: float {
 }
 
 get_curtain_vel :: fn -> float {
-    if game_state == GAME_STATE_STORE {
-        ret curtain_vel * 2.0
-    }
     ret curtain_vel
 }
 
