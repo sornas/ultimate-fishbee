@@ -24,7 +24,11 @@ fish_dims := [
     (105, 241),
 ]
 
-water_particles := particles_mod.water_particles!
+water_particles := [
+    particles_mod.water_particles(),
+    particles_mod.water_particles(),
+    particles_mod.water_particles(),
+]
 
 
 last_wave := 0.0
@@ -66,9 +70,9 @@ count_down := 0.0
 
 GAME_STATE_PLAYING := 0
 GAME_STATE_STORE := 1
-// GAME_STATE_MENU := 2
+GAME_STATE_MENU := 2
 
-game_state := 0
+game_state := GAME_STATE_MENU
 
 set_game_state :: fn state: int {
     game_state = state
@@ -165,6 +169,8 @@ keep_frame :: fn frame: int -> (str, int) {
     ret keep_frames[frame]
 }
 
+start_button :: l_load_image("res/start_button.png", (41, 60))
+
 money := 25
 
 get_money :: fn -> int {
@@ -260,8 +266,8 @@ update_game :: fn delta: float -> void {
         y := -3.0
         z := l_random_range(0, 2)
         fish := fish_mod.fish_new([x, y], z)
-        particles_mod.water_at! water_particles, fish.world_pos(), (cos(1.743 * l_time()) * 0.04) - 0.65
-        l_gfx_particle_spawn! water_particles, 20
+        particles_mod.water_at! water_particles[z], fish.world_pos(), (cos(1.743 * l_time()) * 0.04) - 0.65
+        l_gfx_particle_spawn! water_particles[z], 20
         push! fishes, fish
     }
 
@@ -278,7 +284,9 @@ update_game :: fn delta: float -> void {
         }
     }
 
-    l_gfx_particle_update! water_particles, delta
+    l_gfx_particle_update! water_particles[0], delta
+    l_gfx_particle_update! water_particles[1], delta
+    l_gfx_particle_update! water_particles[2], delta
 }
 
 add_fish_money_text :: fn value: int -> void {
@@ -359,6 +367,7 @@ draw_game :: fn {
         if fish_mod.layer_to_z(layer) > frisbee.pos[2] && fish_mod.layer_to_z(layer-1) <= frisbee.pos[2] && !out_of_frisbees {
             frisbee.draw!
         }
+        l_gfx_particle_render! water_particles[layer]
     }
 
     offset_x := sin(2.6 * l_time()) * 0.04
@@ -375,8 +384,6 @@ draw_game :: fn {
         f := frisbee_stack[i]
         f.draw_stacked! stack_x, y, 1.0
     }
-
-    l_gfx_particle_render! water_particles
 
     draw_fish_money!
 
@@ -409,6 +416,9 @@ start :: fn {
     init_store!
     init_store_ = init_store
 
+    // Init menu
+    set_curtain_pos(-0.2)
+
     for _ in inf(0) {
         _
         if l_input_down("quit") {
@@ -417,17 +427,28 @@ start :: fn {
 
         l_update!
 
+
         if game_state == GAME_STATE_PLAYING {
             update_game! l_delta!
             draw_game!
-        }
-        if game_state == GAME_STATE_STORE {
+        } else if game_state == GAME_STATE_STORE {
             draw_store!
         }
 
 
         curtain_mod.curtain_update! l_delta!
         curtain_mod.curtain_draw!
+
+        if game_state == GAME_STATE_MENU {
+            scale := sin(l_time() * 1.212) * 0.01
+            dx := sin(l_time() * 1.777) * 0.02
+            dy := cos(l_time() * 2.999) * 0.003
+            l_gfx_sprite! start_button, (0, 0), scale + dx, scale + dy, 0.8 * 41.0 / 60.0, 0.8, sin(l_time()) * 0.1
+            if l_input_released("hold") {
+                game_state = GAME_STATE_PLAYING
+                start_transition! false, fn {}
+            }
+        }
 
         l_render!
     }
