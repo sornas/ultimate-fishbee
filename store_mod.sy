@@ -1,4 +1,5 @@
 use frisbee_mod
+use font_mod
 use game
 
 norm_mouse_pos :: fn -> (float, float) {
@@ -19,8 +20,8 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
     }
 
     init :: fn {
-        empty! for_sale
-        empty! prices
+        clear! for_sale
+        clear! prices
 
         for i := 0, i < MAX_STORE_ITEMS, i += 1 {
             frisbee := [l_random(), l_random(), l_random(), l_random()]
@@ -46,7 +47,8 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
         H := MAX_STORE_ITEMS / W
         for x := 0, x < W, x += 1 {
             for y := 0, y < H, y += 1 {
-                fb := for_sale[y * W + x]
+                index := y * W + x
+                fb := for_sale[index]
 
                 draw_x := space * as_float(x) - offset_x
                 draw_y := space * as_float(y) - offset_y
@@ -55,13 +57,22 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
                 d := dist((draw_x / 0.9, draw_y / 0.9), mouse_pos)
                 draw_z := clamp! d * 5.0, 0.8, 1.0
 
-                if l_input_released("hold") && d < 0.2 && game.pay(prices[y * W + x]) {
+                if l_input_released("hold") && d < 0.2 && game.pay(prices[index]) {
                     game.buy_frisbee! fb[0], fb[1], fb[2], fb[3]
                     game.set_game_state! 0 // GAME_STATE_PLAYING
                 }
 
                 f := frisbee_mod.new! fb[0], fb[1], fb[2], fb[3]
                 f.draw_stacked! draw_x, draw_y, draw_z
+
+
+                bobbing := 0.0
+                if d < 0.3 {
+                    bobbing = 0.3 - d
+                }
+                font_x := draw_x - 0.05 + sin((l_time() + as_float(index)) * 1.23) * 0.03 * bobbing
+                font_y := draw_y + 0.10 + cos((l_time() + as_float(index)) * 1.9) * 0.03 * bobbing
+                font_mod.draw_num(font_x, font_y, 0.07, -1, prices[index], 0)
             }
         }
     }
