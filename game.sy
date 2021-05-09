@@ -4,6 +4,8 @@ use frisbee_mod
 use store_mod
 use curtain_mod
 
+init_store_ := fn -> void {}
+
 font_sprite := l_load_image("src/res/font.png", (11, 11))
 font :: fn -> (str, int) {
     ret font_sprite
@@ -170,6 +172,8 @@ goto_store :: fn -> void {
         set_game_state(1)
     }
     start_transition! true, on_complete
+
+    init_store_!
 }
 
 update_game :: fn delta: float -> void {
@@ -318,6 +322,7 @@ draw_game :: fn {
     l_gfx_sprite! shop_button, (0, 0), 0.80, 1.0, scale, scale * (56.0 / 35.0), sin(l_time()) * 0.1
 }
 
+
 start :: fn {
     init!
 
@@ -328,6 +333,7 @@ start :: fn {
     draw_store : !fn -> void = fs[2]
 
     init_store!
+    init_store_ = init_store
 
     for _ in inf(0) {
         _
