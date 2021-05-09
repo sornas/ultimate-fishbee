@@ -190,6 +190,8 @@ buy_frisbee :: fn weight: float, bounciness: float, reusable: float, accuracy: f
 }
 
 init :: fn {
+    l_set_window_icon! "res/logo_small.png"
+
     pop! frisbee_stack
 
     buy_frisbee! 1.0, 1.0, 1.0, 1.0
