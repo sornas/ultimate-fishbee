@@ -187,15 +187,10 @@ pay :: fn price: int -> bool {
 
 buy_frisbee :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> void {
     push! frisbee_stack, frisbee_mod.new(weight, bounciness, reusable, accuracy)
+    out_of_frisbees = false
 }
 
 init :: fn {
-    pop! frisbee_stack
-
-    buy_frisbee! 1.0, 1.0, 1.0, 1.0
-    buy_frisbee! 1.0, 1.0, 1.0, 1.0
-    buy_frisbee! 1.0, 1.0, 1.0, 1.0
-
     l_bind_quit("quit")
     l_bind_key("ESCAPE", "quit")
 
@@ -214,7 +209,22 @@ goto_store :: fn -> void {
     }
 }
 
+reset_game :: fn {
+    money = 25
+    frisbee_stack = frisbee_mod.stack!
+    clear! frisbee_stack
+
+    buy_frisbee! 1.0, 1.0, 1.0, 1.0
+    buy_frisbee! 1.0, 1.0, 1.0, 1.0
+
+    frisbee = pop! frisbee_stack
+}
+
 update_game :: fn delta: float -> void {
+
+    if !can_buy_anything() && out_of_frisbees {
+        start_transition! true, fn { set_game_state(2) }
+    }
 
     if (l_random() < 0.01) && (l_time()- last_wave) > 10.0 {
         l_audio_play(sounds[4], false, 0.5, 0.5)
@@ -416,9 +426,6 @@ start :: fn {
     init_store!
     init_store_ = init_store
 
-    // Init menu
-    set_curtain_pos(-0.2)
-
     for _ in inf(0) {
         _
         if l_input_down("quit") {
@@ -440,12 +447,14 @@ start :: fn {
         curtain_mod.curtain_draw!
 
         if game_state == GAME_STATE_MENU {
+            set_curtain_pos(-0.2)
             scale := sin(l_time() * 1.212) * 0.01
             dx := sin(l_time() * 1.777) * 0.02
             dy := cos(l_time() * 2.999) * 0.003
             l_gfx_sprite! start_button, (0, 0), scale + dx, scale + dy, 0.8 * 41.0 / 60.0, 0.8, sin(l_time()) * 0.1
             if l_input_released("hold") {
                 game_state = GAME_STATE_PLAYING
+                reset_game!
                 start_transition! false, fn {}
             }
         }
