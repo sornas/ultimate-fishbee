@@ -213,7 +213,7 @@ update_game :: fn delta: float -> void {
         y := -3.0
         z := l_random_range(0, 2)
         fish := fish_mod.fish_new([x, y], z)
-        particles_mod.water_at! water_particles, fish.world_pos!
+        particles_mod.water_at! water_particles, fish.world_pos(), (cos(1.743 * l_time()) * 0.04) - 0.65
         l_gfx_particle_spawn! water_particles, 20
         push! fishes, fish
     }

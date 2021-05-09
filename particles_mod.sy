@@ -21,11 +21,14 @@ water_particles :: fn -> (str, int) {
     ret ps
 }
 
-water_at :: fn ps: (str, int), pos: [float] -> void {
+water_at :: fn ps: (str, int), pos: [float], boat_y: float -> void {
     size := 0.1 / pos[2]
+    x := pos[0] / pos[2]
+    y := max(pos[1] / pos[2], boat_y)
+
     l_gfx_particle_start_sx! ps, (size * 0.75, size)
     l_gfx_particle_start_sy! ps, (size * 0.75, size)
 
-    l_gfx_particle_x! ps, (pos[0] / pos[2], pos[0] / pos[2])
-    l_gfx_particle_y! ps, (pos[1] / pos[2], pos[1] / pos[2])
+    l_gfx_particle_x! ps, (x, x)
+    l_gfx_particle_y! ps, (y, y)
 }
