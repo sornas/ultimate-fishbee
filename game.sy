@@ -243,6 +243,9 @@ update_game :: fn delta: float -> void {
 }
 
 add_fish_money_text :: fn value: int -> void {
+    if count_down == 0.0 {
+        made_money = 0
+    }
     made_money += value
     count_down = 2.0
 }
