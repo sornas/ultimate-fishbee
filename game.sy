@@ -239,6 +239,16 @@ reset_game :: fn {
     frisbee = pop! frisbee_stack
 }
 
+last_time := l_time()
+at_sixty_fps :: fn -> bool {
+    current := l_time()
+    if (current - last_time) > 1.0 / 60.0 {
+        last_time = current
+        ret true
+    }
+    ret false
+}
+
 update_game :: fn delta: float -> void {
 
     if !can_buy_anything() && out_of_frisbees {
@@ -296,7 +306,7 @@ update_game :: fn delta: float -> void {
     fishes = fish_mod.fish_filter! fishes
 
     // Spawn fish and water particles
-    if l_random() < 0.03 {
+    if l_random() < 0.03 && at_sixty_fps() {
         width := 8.0
         x := l_random() * width - width / 2.0 + 3.0
         y := -3.0
