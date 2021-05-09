@@ -48,7 +48,8 @@ frisbee_stack := frisbee_mod.stack!
 frisbee := frisbee_mod.new! 1.0, 1.0, 1.0, 1.0
 out_of_frisbees := false
 
-fish_money := [(0, [0.0])]
+made_money := 0
+count_down := 0.0
 
 GAME_STATE_PLAYING := 0
 GAME_STATE_STORE := 1
@@ -153,7 +154,6 @@ buy_frisbee :: fn weight: float, bounciness: float, reusable: float, accuracy: f
 
 init :: fn {
     pop! frisbee_stack
-    clear! fish_money
 
     buy_frisbee! 1.0, 1.0, 1.0, 1.0
     buy_frisbee! 1.0, 1.0, 1.0, 1.0
@@ -191,7 +191,7 @@ update_game :: fn delta: float -> void {
             fish_pos := fish.world_pos!
             delta := [
                 fish_pos[0] - frisbee.pos[0],
-                0.0, // fish_pos[1] - frisbee.pos[1], // don't check y
+                fish_pos[1] - frisbee.pos[1],
                 (fish_pos[2] - frisbee.pos[2]) * 0.3,
             ]
 
@@ -200,7 +200,7 @@ update_game :: fn delta: float -> void {
                 frisbee.vel[0] *= -1.0 * frisbee.bounciness
                 fish.hit!
                 money += fish.value
-                add_fish_money_text! fish.world_pos(), fish.value
+                add_fish_money_text! fish.value
             }
         }
     }
@@ -234,29 +234,17 @@ update_game :: fn delta: float -> void {
     l_gfx_particle_update! water_particles, delta
 }
 
-add_fish_money_text :: fn pos: [float], value: int -> void {
-    push! fish_money, (value, [pos[0], pos[1], pos[2], 0.0])
+add_fish_money_text :: fn value: int -> void {
+    made_money += value
+    count_down = 2.0
 }
 
 draw_fish_money :: fn {
-    delta : !float = l_delta()
+    delta := l_delta!
 
-    new_fish_money : ![(int, [float])] = []
-    for money in fish_money {
-        value : !int = money[0]
-        pos : ![float] = money[1]
-
-        pos[1] = pos[1] + delta
-
-        font_mod.draw_num(pos[0] / pos[2], pos[1] / pos[2], 0.05, 1, value, 0)
-
-        pos[3] += delta
-        if pos[3] < 1.0 {
-            push! new_fish_money, money
-        }
-    }
-
-    fish_money = new_fish_money
+    count_down = max(0.0, count_down - delta)
+    tint := (215.0 / 255.0, 152.0 / 255.0, 11.0 / 255.0, min(0.5, count_down * count_down) * 2.0)
+    font_mod.draw_num_tint! -0.9, 0.8, 0.06, 1, made_money, 0, tint
 }
 
 wave_sprite := l_load_image("res/water-wave-bigger.png", (128, 128))
@@ -291,6 +279,9 @@ water_background := l_load_image("res/water-no-detail.png", (128, 128))
 draw_game :: fn {
     l_gfx_sprite! water_background, (0, 0), 0.0, -1.1, 2.0, 2.0
 
+    if fish_mod.layer_to_z(2) <= frisbee.pos[2] && !out_of_frisbees {
+        frisbee.draw!
+    }
     for layer := 2, layer >= 0, layer -= 1 {
         waves(layer)
         for i := 0, i < len(fishes), i += 1 {
@@ -298,8 +289,10 @@ draw_game :: fn {
                 fishes[i].draw!
             }
         }
+        if fish_mod.layer_to_z(layer) > frisbee.pos[2] && fish_mod.layer_to_z(layer-1) <= frisbee.pos[2] && !out_of_frisbees {
+            frisbee.draw!
+        }
     }
-    draw_fish_money!
 
     offset_x := sin(2.6 * l_time()) * 0.04
     offset_y := cos(1.743 * l_time()) * 0.04
@@ -316,13 +309,10 @@ draw_game :: fn {
         f.draw_stacked! stack_x, y, 1.0
     }
 
-    if !out_of_frisbees {
-        frisbee.draw!
-    }
-
     l_gfx_particle_render! water_particles
 
     font_mod.draw_num(-0.9, 0.9, 0.1, -1, money, 0)
+    draw_fish_money!
 }
 
 start :: fn {
