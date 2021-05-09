@@ -185,6 +185,15 @@ start_button :: l_load_image("res/start_button.png", (41, 60))
 logo_text :: l_load_image("res/logo_text.png", (185, 70))
 
 money := 25
+_bought_items := 0
+
+bought_items :: fn -> int {
+    ret _bought_items
+}
+
+inc_bought_items :: fn {
+    _bought_items += 1
+}
 
 get_money :: fn -> int {
     ret money
@@ -233,6 +242,7 @@ goto_store :: fn -> void {
 reset_game :: fn {
     money = 25
     total_money = 0
+    _bought_items = 0
     frisbee_stack = frisbee_mod.stack!
     clear! frisbee_stack
 

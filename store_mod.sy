@@ -14,10 +14,10 @@ store_init :: fn -> (fn -> void, fn -> bool, fn -> void) {
     for_sale := [[1.0, 1.0, 1.0, 1.0]]
     prices := [0]
     MAX_STORE_ITEMS := 6
-    baught_items := 1
 
     inflation :: fn -> int {
-        flate := l_random_range(2, 3) + baught_items * baught_items / 8
+        print game.bought_items()
+        flate := l_random_range(2, 3) + game.bought_items() * game.bought_items() / 8
         ret flate
     }
 
@@ -96,7 +96,7 @@ store_init :: fn -> (fn -> void, fn -> bool, fn -> void) {
                     prices[index] = 0
                     // GAME_STATE_PLAYING
                     game.start_transition! true, fn { game.set_game_state(0) }
-                    baught_items += 1
+                    game.inc_bought_items()
                 }
 
             }
