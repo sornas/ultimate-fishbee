@@ -2,15 +2,19 @@ use game
 
 curtain_draw :: fn -> void {
     pos := game.get_curtain_pos() + 0.5
+
+    scale := 1.2 + sin(l_time() * 1.212) * 0.01
+    dx := sin(l_time() * 1.777) * 0.02
+    dy := cos(l_time() * 2.999) * 0.003
     sprite := game.curtain_full()
-    l_gfx_sprite! sprite, (0, 0), (-0.5, pos + 1.0), (1.0, 1.0)
-    l_gfx_sprite! sprite, (0, 0), ( 0.5, pos + 1.0), (1.0, 1.0)
-    l_gfx_sprite! sprite, (0, 0), (-0.5, pos), (1.0, 1.0)
-    l_gfx_sprite! sprite, (0, 0), ( 0.5, pos), (1.0, 1.0)
-    pos = game.get_curtain_pos() - 0.5
+    l_gfx_sprite! sprite, (0, 0), (-0.5 * scale + dx, pos + dy + scale), (scale, scale)
+    l_gfx_sprite! sprite, (0, 0), ( 0.5 * scale + dx, pos + dy + scale), (scale, scale)
+    l_gfx_sprite! sprite, (0, 0), (-0.5 * scale + dx, pos + dy), (scale, scale)
+    l_gfx_sprite! sprite, (0, 0), ( 0.5 * scale + dx, pos + dy), (scale, scale)
+    pos = game.get_curtain_pos() - 0.49 * scale
     sprite = game.curtain_edge()
-    l_gfx_sprite! sprite, (0, 0), (-0.5, pos), (1.0, 1.0)
-    l_gfx_sprite! sprite, (0, 0), ( 0.5, pos), (1.0, 1.0)
+    l_gfx_sprite! sprite, (0, 0), (-0.5 * scale + dx, pos + dy), (scale, scale)
+    l_gfx_sprite! sprite, (0, 0), ( 0.5 * scale + dx, pos + dy), (scale, scale)
 }
 
 curtain_update :: fn delta: float {

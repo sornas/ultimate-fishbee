@@ -101,7 +101,7 @@ curtain_edge :: fn -> (str, int) {
     ret _curtain_edge
 }
 
-curtain_pos := 2.0
+curtain_pos := 3.0
 curtain_vel := 0.0
 _curtain_on_complete := fn {}
 
@@ -127,9 +127,9 @@ curtain_on_complete :: fn {
 
 start_transition :: fn down: bool, on_complete: fn -> void {
     if down {
-        curtain_vel = -1.0
+        curtain_vel = -3.0
     } else {
-        curtain_vel = 1.0
+        curtain_vel = 2.0
     }
     _curtain_on_complete = on_complete
 }
@@ -288,7 +288,6 @@ draw_game :: fn {
             }
         }
     }
-    draw_fish_money!
 
     offset_x := sin(2.6 * l_time()) * 0.04
     offset_y := cos(1.743 * l_time()) * 0.04
@@ -310,6 +309,7 @@ draw_game :: fn {
     }
 
     font_mod.draw_num(-0.9, 0.9, 0.1, -1, money, 0)
+    draw_fish_money!
 }
 
 start :: fn {
