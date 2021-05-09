@@ -140,6 +140,16 @@ start_transition :: fn down: bool, on_complete: fn -> void {
     _curtain_on_complete = on_complete
 }
 
+keep_frames := [
+    l_load_image("res/keep1.png", (146, 186)),
+    l_load_image("res/keep2.png", (146, 186)),
+    l_load_image("res/keep3.png", (146, 186)),
+]
+
+keep_frame :: fn frame: int -> (str, int) {
+    ret keep_frames[frame]
+}
+
 money := 25
 
 pay :: fn price: int -> bool {
@@ -254,9 +264,10 @@ draw_fish_money :: fn {
     delta := l_delta!
 
     count_down = max(0.0, count_down - delta)
-    tint := (215.0 / 255.0, 152.0 / 255.0, 11.0 / 255.0, min(0.5, count_down * count_down) * 2.0)
-    font_mod.draw_num_tint! -0.9, 0.7, 0.06, 1, made_money, 0, tint
-    font_mod.draw_num(-0.9, 0.8, 0.1, -1, money, 0)
+    tint1 := (52.0 / 255.0, 52.0 / 255.0, 52.0 / 255.0, 1.0)
+    tint2 := (215.0 / 255.0, 152.0 / 255.0, 11.0 / 255.0, min(0.5, count_down * count_down) * 2.0)
+    font_mod.draw_num_tint(-0.9, 0.8, 0.1, -1, money, 0, tint1)
+    font_mod.draw_num_tint! -0.9, 0.7, 0.06, 1, made_money, 0, tint2
 }
 
 wave_sprite := l_load_image("res/water-wave-bigger.png", (128, 128))
@@ -287,10 +298,23 @@ waves :: fn layer: int -> void {
 
 boat_sprite := l_load_image("res/boat.png", (512, 512))
 water_background := l_load_image("res/water-no-detail.png", (128, 128))
+sky_background :: l_load_image("res/background.png", (512, 512))
+
+boat :: fn -> (str, int) {
+    ret boat_sprite
+}
+
+sky :: fn -> (str, int) {
+    ret sky_background
+}
 
 shop_button := l_load_image("res/shop_button.png", (35, 56))
 
 draw_game :: fn {
+    l_gfx_sprite! sky_background, (0, 0), -0.5, 0.5, 1.0, 1.0
+    l_gfx_sprite! sky_background, (0, 0),  0.5, 0.5, 1.0, 1.0
+    l_gfx_sprite! sky_background, (0, 0), -0.5,-0.5, 1.0, 1.0
+    l_gfx_sprite! sky_background, (0, 0),  0.5,-0.5, 1.0, 1.0
     l_gfx_sprite! water_background, (0, 0), 0.0, -1.1, 2.0, 2.0
 
     if fish_mod.layer_to_z(2) <= frisbee.pos[2] && !out_of_frisbees {

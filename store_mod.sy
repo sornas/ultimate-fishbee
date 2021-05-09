@@ -43,6 +43,10 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
 
     draw :: fn -> void {
 
+        l_gfx_sprite! game.sky(), (0, 0), -0.5, 0.5, 1.0, 1.0
+        l_gfx_sprite! game.sky(), (0, 0),  0.5, 0.5, 1.0, 1.0
+        l_gfx_sprite! game.boat(), (0, 0), 0.0,-0.56, 2.0, 2.0
+
         mouse_pos := norm_mouse_pos!
 
         space := 0.55
@@ -89,6 +93,9 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
 
             }
         }
+
+        l_gfx_sprite! game.keep_frame(as_int(rem(l_time() * 5.0, 3.0))), (0, 0), (0.05, 0.6), (146.0 / 186.0, 1.0) * (0.65, 0.65)
+
         game.draw_fish_money!
     }
 
