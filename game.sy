@@ -263,8 +263,10 @@ waves :: fn layer: int -> void {
 
 
 boat_sprite := l_load_image("res/boat.png", (512, 512))
-
 water_background := l_load_image("res/water-no-detail.png", (128, 128))
+
+shop_button := l_load_image("res/shop_button.png", (35, 56))
+
 draw_game :: fn {
     l_gfx_sprite! water_background, (0, 0), 0.0, -1.1, 2.0, 2.0
 
@@ -300,6 +302,8 @@ draw_game :: fn {
 
     font_mod.draw_num(-0.9, 0.9, 0.1, -1, money, 0)
     draw_fish_money!
+
+    l_gfx_sprite! shop_button, (0, 0), 0.85, 1.0, 0.3, 0.3 * (56.0 / 35.0), sin(l_time()) * 0.1
 }
 
 start :: fn {
