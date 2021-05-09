@@ -166,7 +166,7 @@ start_transition :: fn down: bool, on_complete: fn -> void {
     if down {
         curtain_vel = -3.0
     } else {
-        curtain_vel = 2.0
+        curtain_vel = 2.5
     }
     _curtain_on_complete = on_complete
 }
@@ -291,7 +291,7 @@ update_game :: fn delta: float -> void {
         fish := fishes[i]
         fish.update! delta
 
-        if frisbee.thrown {
+        if frisbee.thrown && !out_of_frisbees {
             fish_pos := fish.world_pos!
             delta := [
                 fish_pos[0] - frisbee.pos[0],
