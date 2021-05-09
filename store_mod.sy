@@ -10,7 +10,7 @@ dist :: fn a: (float, float), b: (float, float) -> float {
     ret sqrt! (a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1])
 }
 
-store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
+store_init :: fn -> (fn -> void, fn -> bool, fn -> void) {
     for_sale := [[1.0, 1.0, 1.0, 1.0]]
     prices := [0]
     MAX_STORE_ITEMS := 6
@@ -38,7 +38,14 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
         }
     }
 
-    update :: fn delta:float -> void {
+    can_buy_anything :: fn -> bool {
+        money := game.get_money()
+        for i := 0, i < MAX_STORE_ITEMS, i += 1 {
+            if money >= prices[i] && prices[i] != 0 {
+                ret true
+            }
+        }
+        ret false
     }
 
     draw :: fn -> void {
@@ -84,7 +91,7 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
                 font_y := draw_y + 0.10 + cos((l_time() + as_float(index)) * 1.9) * 0.03 * bobbing
                 font_mod.draw_num_tint(font_x, font_y, 0.07, -1, prices[index], 0, (0.0, 0.0, 0.0, 0.9))
 
-                if l_input_released("hold") && d < 0.2 && game.pay(prices[index]) {
+                if l_input_pressed("hold") && d < 0.2 && game.pay(prices[index]) {
                     game.buy_frisbee! fb[0], fb[1], fb[2], fb[3]
                     prices[index] = 0
                     // GAME_STATE_PLAYING
@@ -100,5 +107,5 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
         game.draw_fish_money!
     }
 
-    ret (init, update, draw)
+    ret (init, can_buy_anything, draw)
 }

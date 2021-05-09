@@ -6,6 +6,7 @@ use curtain_mod
 use particles_mod
 
 init_store_ := fn -> void {}
+can_buy_anything := fn -> bool { ret true }
 
 font_sprite := l_load_image("src/res/font.png", (11, 11))
 font :: fn -> (str, int) {
@@ -23,7 +24,21 @@ fish_dims := [
     (105, 241),
 ]
 
-water_particles := particles_mod.water_particles!
+water_particles := [
+    particles_mod.water_particles(),
+    particles_mod.water_particles(),
+    particles_mod.water_particles(),
+]
+
+
+last_wave := 0.0
+sounds := [
+    l_load_audio("res/Ultimate_Fishbee_Music.wav"),
+    l_load_audio("res/fishbeeSwosh.wav"),
+    l_load_audio("res/klirr.wav"),
+    l_load_audio("res/rida.wav"),
+    l_load_audio("res/waves.wav"),
+]
 
 fish_frames := [
     l_load_image("res/fish1_1.png", (91, 236)),
@@ -56,12 +71,13 @@ count_down := 0.0
 
 GAME_STATE_PLAYING := 0
 GAME_STATE_STORE := 1
-// GAME_STATE_MENU := 2
+GAME_STATE_MENU := 2
 
-game_state := 0
+game_state := GAME_STATE_MENU
 
 set_game_state :: fn state: int {
     game_state = state
+    l_audio_play(sounds[3], false, 1.0, 2.0)
 }
 
 frisbee_accents := [
@@ -130,6 +146,9 @@ set_curtain_vel :: fn vel: float {
 
 curtain_on_complete :: fn {
     _curtain_on_complete()
+    if game_state == GAME_STATE_STORE {
+        init_store_!
+    }
 }
 
 start_transition :: fn down: bool, on_complete: fn -> void {
@@ -151,7 +170,13 @@ keep_frame :: fn frame: int -> (str, int) {
     ret keep_frames[frame]
 }
 
+start_button :: l_load_image("res/start_button.png", (41, 60))
+
 money := 25
+
+get_money :: fn -> int {
+    ret money
+}
 
 pay :: fn price: int -> bool {
     if price <= money {
@@ -163,15 +188,10 @@ pay :: fn price: int -> bool {
 
 buy_frisbee :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> void {
     push! frisbee_stack, frisbee_mod.new(weight, bounciness, reusable, accuracy)
+    out_of_frisbees = false
 }
 
 init :: fn {
-    pop! frisbee_stack
-
-    buy_frisbee! 1.0, 1.0, 1.0, 1.0
-    buy_frisbee! 1.0, 1.0, 1.0, 1.0
-    buy_frisbee! 1.0, 1.0, 1.0, 1.0
-
     l_bind_quit("quit")
     l_bind_key("ESCAPE", "quit")
 
@@ -182,19 +202,43 @@ init :: fn {
 }
 
 goto_store :: fn -> void {
-    on_complete := fn {
-        set_game_state(1)
+    if can_buy_anything() {
+        on_complete := fn {
+            set_game_state(1)
+        }
+        start_transition! true, on_complete
     }
-    start_transition! true, on_complete
+}
 
-    init_store_!
+reset_game :: fn {
+    money = 25
+    frisbee_stack = frisbee_mod.stack!
+    clear! frisbee_stack
+
+    buy_frisbee! 1.0, 1.0, 1.0, 1.0
+    buy_frisbee! 1.0, 1.0, 1.0, 1.0
+
+    frisbee = pop! frisbee_stack
 }
 
 update_game :: fn delta: float -> void {
 
+    if !can_buy_anything() && out_of_frisbees {
+        start_transition! true, fn { set_game_state(2) }
+    }
+
+    if (l_random() < 0.01) && (l_time()- last_wave) > 10.0 {
+        l_audio_play(sounds[4], false, 0.5, 0.5)
+        last_wave = l_time!
+    }
+
     if !out_of_frisbees {
+        if !frisbee.thrown && l_input_released("hold") {
+            l_audio_play(sounds[1], false, 1.0, 1.0)
+        }
         frisbee.update! delta
     }
+
 
     if l_input_down("store") {
         goto_store!
@@ -217,6 +261,7 @@ update_game :: fn delta: float -> void {
             distance := sqrt! delta[0] * delta[0] + delta[1] * delta[1] + delta[2] * delta[2]
             if distance < 0.5 {
                 frisbee.vel[0] *= -1.0 * frisbee.bounciness
+                l_audio_play(sounds[2], false, 1.0, 2.0)
                 fish.hit!
                 money += fish.value
                 total_money += fish.value
@@ -235,8 +280,8 @@ update_game :: fn delta: float -> void {
         y := -3.0
         z := l_random_range(0, 2)
         fish := fish_mod.fish_new([x, y], z)
-        particles_mod.water_at! water_particles, fish.world_pos(), (cos(1.743 * l_time()) * 0.04) - 0.65
-        l_gfx_particle_spawn! water_particles, 20
+        particles_mod.water_at! water_particles[z], fish.world_pos(), (cos(1.743 * l_time()) * 0.04) - 0.65
+        l_gfx_particle_spawn! water_particles[z], 20
         push! fishes, fish
     }
 
@@ -253,7 +298,9 @@ update_game :: fn delta: float -> void {
         }
     }
 
-    l_gfx_particle_update! water_particles, delta
+    l_gfx_particle_update! water_particles[0], delta
+    l_gfx_particle_update! water_particles[1], delta
+    l_gfx_particle_update! water_particles[2], delta
 }
 
 add_fish_money_text :: fn value: int -> void {
@@ -334,6 +381,7 @@ draw_game :: fn {
         if fish_mod.layer_to_z(layer) > frisbee.pos[2] && fish_mod.layer_to_z(layer-1) <= frisbee.pos[2] && !out_of_frisbees {
             frisbee.draw!
         }
+        l_gfx_particle_render! water_particles[layer]
     }
 
     offset_x := sin(2.6 * l_time()) * 0.04
@@ -351,19 +399,19 @@ draw_game :: fn {
         f.draw_stacked! stack_x, y, 1.0
     }
 
-    l_gfx_particle_render! water_particles
-
     draw_fish_money!
 
-    scale := 0.3
-    mouse := store_mod.norm_mouse_pos()
-    if mouse[0] > 0.70 && mouse[1] > 0.70 {
-        scale = 0.35
-        if l_input_released("hold") {
-            goto_store!
+    if can_buy_anything() {
+        scale := 0.3
+        mouse := store_mod.norm_mouse_pos()
+        if mouse[0] > 0.70 && mouse[1] > 0.70 {
+            scale = 0.35
+            if l_input_released("hold") {
+                goto_store!
+            }
         }
+        l_gfx_sprite! shop_button, (0, 0), 0.80, 0.93, scale, scale * (56.0 / 35.0), sin(l_time()) * 0.1
     }
-    l_gfx_sprite! shop_button, (0, 0), 0.80, 0.93, scale, scale * (56.0 / 35.0), sin(l_time()) * 0.1
 }
 
 party_system_init :: fn -> (str, int) {
@@ -413,8 +461,11 @@ start :: fn {
     fs := store_mod.store_init!
 
     init_store : !fn -> void = fs[0]
-    update_store : !fn float -> void = fs[1]
+    can_buy_anything = fs[1]
     draw_store : !fn -> void = fs[2]
+
+
+    l_audio_play(sounds[0], true, 0.5, 1.0)
 
     init_store!
     init_store_ = init_store
@@ -429,12 +480,11 @@ start :: fn {
 
         l_update!
 
+
         if game_state == GAME_STATE_PLAYING {
             update_game! l_delta!
             draw_game!
-        }
-        if game_state == GAME_STATE_STORE {
-            update_store! l_delta!
+        } else if game_state == GAME_STATE_STORE {
             draw_store!
         }
 
@@ -442,6 +492,20 @@ start :: fn {
         curtain_mod.curtain_update! l_delta!
         curtain_mod.curtain_draw!
 
+
+        if game_state == GAME_STATE_MENU {
+            set_curtain_pos(-0.2)
+            scale := sin(l_time() * 1.212) * 0.01
+            dx := sin(l_time() * 1.777) * 0.02
+            dy := cos(l_time() * 2.999) * 0.003
+            l_gfx_sprite! start_button, (0, 0), scale + dx, scale + dy, 0.8 * 41.0 / 60.0, 0.8, sin(l_time()) * 0.1
+            if l_input_released("hold") {
+                game_state = GAME_STATE_PLAYING
+                reset_game!
+                start_transition! false, fn {}
+            }
+        }
+        
         l_gfx_particle_update! party_system, l_delta!
         l_gfx_particle_render! party_system
 
