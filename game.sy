@@ -285,9 +285,22 @@ waves :: fn layer: int -> void {
 
 
 boat_sprite := l_load_image("res/boat.png", (512, 512))
-
 water_background := l_load_image("res/water-no-detail.png", (128, 128))
+sky_background :: l_load_image("res/background.png", (512, 512))
+
+boat :: fn -> (str, int) {
+    ret boat_sprite
+}
+
+sky :: fn -> (str, int) {
+    ret sky_background
+}
+
 draw_game :: fn {
+    l_gfx_sprite! sky_background, (0, 0), -0.5, 0.5, 1.0, 1.0
+    l_gfx_sprite! sky_background, (0, 0),  0.5, 0.5, 1.0, 1.0
+    l_gfx_sprite! sky_background, (0, 0), -0.5,-0.5, 1.0, 1.0
+    l_gfx_sprite! sky_background, (0, 0),  0.5,-0.5, 1.0, 1.0
     l_gfx_sprite! water_background, (0, 0), 0.0, -1.1, 2.0, 2.0
 
     for layer := 2, layer >= 0, layer -= 1 {
