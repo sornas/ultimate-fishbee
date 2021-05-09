@@ -84,19 +84,19 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
     }
 
     get_style :: fn -> ((float, float, float), (float, float, float), int) {
-        body := (0.3, 0.5, 0.3)
-        if self.weight < 0.25 {
-            body = (0.5, 0.3, 0.3)
-        } else if self.weight > .75 {
-            body = (0.5, 0.3, 0.5)
+        body := (228.0 / 255.0, 255.0 / 255.0, 125.0 / 255.0)
+        if self.weight < 0.33 {
+            body = (255.0 / 255.0, 189.0 / 255.0, 125.0 / 255.0)
+        } else if self.weight > 0.66 {
+            body = (151.0 / 255.0, 125.0 / 255.0, 255.0 / 255.0)
         }
-        accent := (0.3, 0.5, 0.3)
+
+        accent := (195.0 / 255.0, 64.0 / 255.0, 195.0 / 255.0)
         if self.bounciness < 0.25 {
-            accent = (0.5, 0.3, 0.3)
+            accent = (255.0 / 255.0, 125.0 / 255.0, 255.0 / 255.0)
         } else if self.bounciness > .75 {
-            accent = (0.5, 0.3, 0.5)
+            accent = (248.0 / 255.0, 197.0 / 255.0, 248.0 / 255.0)
         }
-        accent *= body
 
         pattern := 0
         if self.reusable < 0.25 {
