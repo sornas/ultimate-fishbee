@@ -411,7 +411,7 @@ start :: fn {
             dx := sin(l_time() * 1.777) * 0.02
             dy := cos(l_time() * 2.999) * 0.003
             l_gfx_sprite! start_button, (0, 0), scale + dx, scale + dy, 0.8 * 41.0 / 60.0, 0.8, sin(l_time()) * 0.1
-            if l_input_pressed("hold") {
+            if l_input_released("hold") {
                 game_state = GAME_STATE_PLAYING
                 start_transition! false, fn {}
             }
