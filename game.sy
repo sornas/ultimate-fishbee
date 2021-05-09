@@ -204,13 +204,13 @@ goto_store :: fn -> void {
 update_game :: fn delta: float -> void {
 
     if (l_random() < 0.01) && (l_time()- last_wave) > 10.0 {
-        l_audio_play(sounds[5], false, 1.0, 1.0)
+        l_audio_play(sounds[5], false, 0.5, 0.5)
         last_wave = l_time!
     }
 
     if !out_of_frisbees {
         if !frisbee.thrown && l_input_released("hold") {
-            l_audio_play(sounds[1], false, 1.0, 1.0)
+            l_audio_play(sounds[2], false, 1.0, 1.0)
         }
         frisbee.update! delta
     }
@@ -395,7 +395,7 @@ start :: fn {
     draw_store : !fn -> void = fs[2]
 
 
-    l_audio_play(sounds[0], true, 0.0, 1.0)
+    l_audio_play(sounds[0], true, 0.5, 1.0)
 
     init_store!
     init_store_ = init_store
