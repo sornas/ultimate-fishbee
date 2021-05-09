@@ -83,6 +83,7 @@ count_down := 0.0
 GAME_STATE_PLAYING := 0
 GAME_STATE_STORE := 1
 GAME_STATE_MENU := 2
+GAME_STATE_STORE_RESET := 3
 
 game_state := GAME_STATE_MENU
 
@@ -528,13 +529,17 @@ start :: fn {
         l_update!
 
 
-        if game_state == GAME_STATE_PLAYING {
+        if game_state == GAME_STATE_PLAYING || game_state == GAME_STATE_STORE_RESET {
             update_game! l_delta!
             draw_game!
         } else if game_state == GAME_STATE_STORE {
             draw_store!
         }
 
+        if game_state == GAME_STATE_STORE_RESET {
+            game_state = GAME_STATE_PLAYING
+            init_store!
+        }
 
         curtain_mod.curtain_update! l_delta!
         curtain_mod.curtain_draw!

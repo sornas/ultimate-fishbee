@@ -94,7 +94,7 @@ store_init :: fn -> (fn -> void, fn -> bool, fn -> void) {
                     game.buy_frisbee! fb[0], fb[1], fb[2], fb[3]
                     prices[index] = 0
                     // GAME_STATE_PLAYING
-                    game.start_transition! true, fn { game.set_game_state(0) }
+                    game.start_transition! true, fn { game.set_game_state(3) }
                     game.inc_bought_items()
                 }
 
