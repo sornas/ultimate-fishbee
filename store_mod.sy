@@ -89,6 +89,7 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
                     prices[index] = 0
                     // GAME_STATE_PLAYING
                     game.start_transition! true, fn { game.set_game_state(0) }
+                    baught_items += 1
                 }
 
             }
