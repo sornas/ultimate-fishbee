@@ -1,0 +1,26 @@
+water_particles :: fn -> (str, int) {
+    ps := l_gfx_particle_new!
+    l_gfx_particle_lifetime! ps, (1.0, 1.0)
+
+    l_gfx_particle_start_sx! ps, (0.015, 0.02)
+    l_gfx_particle_start_sy! ps, (0.015, 0.02)
+    l_gfx_particle_end_sx! ps, (0.0, 0.0)
+    l_gfx_particle_end_sy! ps, (0.0, 0.0)
+    
+    l_gfx_particle_start_color! ps, (1.0, 1.0, 1.0)
+    l_gfx_particle_end_color! ps, (1.0, 1.0, 1.0)
+
+    l_gfx_particle_start_alpha! ps, (0.7, 0.5)
+    l_gfx_particle_end_alpha! ps, (0.0, 0.0)
+
+    ret ps
+}
+
+water_at :: fn ps: (str, int), pos: [float] -> void {
+    size := 0.1 / pos[2]
+    l_gfx_particle_start_sx! ps, (size * 0.75, size)
+    l_gfx_particle_start_sy! ps, (size * 0.75, size)
+
+    l_gfx_particle_x! ps, (pos[0] / pos[2], pos[0] / pos[2])
+    l_gfx_particle_y! ps, (pos[1] / pos[2], pos[1] / pos[2])
+}
