@@ -306,7 +306,9 @@ update_game :: fn delta: float -> void {
     fishes = fish_mod.fish_filter! fishes
 
     // Spawn fish and water particles
-    if l_random() < 0.03 && at_sixty_fps() {
+    q := at_sixty_fps()
+    print q
+    if l_random() < 0.03 && q {
         width := 8.0
         x := l_random() * width - width / 2.0 + 3.0
         y := -3.0
