@@ -90,6 +90,7 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
 
             }
         }
+        game.draw_fish_money!
     }
 
     ret (init, update, draw)
