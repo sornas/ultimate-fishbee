@@ -29,6 +29,17 @@ water_particles := [
     particles_mod.water_particles(),
 ]
 
+coin_sprite_ := l_load_image("res/gold.png", (65, 45))
+coin_sprite :: fn -> (str, int) {
+    ret coin_sprite_
+}
+
+coin_particles := [
+    particles_mod.coin_particles(),
+    particles_mod.coin_particles(),
+    particles_mod.coin_particles(),
+]
+
 fish_frames := [
     l_load_image("res/fish1_1.png", (91, 236)),
     l_load_image("res/fish1_2.png", (91, 236)),
@@ -195,6 +206,8 @@ goto_store :: fn -> void {
 
 update_game :: fn delta: float -> void {
 
+    particles_mod.coin_at! coin_particles[0], [0.0, 0.0, 1.0]
+
     if !out_of_frisbees {
         frisbee.update! delta
     }
@@ -220,9 +233,12 @@ update_game :: fn delta: float -> void {
             distance := sqrt! delta[0] * delta[0] + delta[1] * delta[1] + delta[2] * delta[2]
             if distance < 0.5 {
                 frisbee.vel[0] *= -1.0 * frisbee.bounciness
-                fish.hit!
+                particles_mod.coin_at! coin_particles[fish.layer], fish.world_pos()
+                l_gfx_particle_spawn! coin_particles[fish.layer], fish.value * 2
                 money += fish.value
                 add_fish_money_text! fish.value
+
+                fish.hit!
             }
         }
     }
@@ -256,6 +272,10 @@ update_game :: fn delta: float -> void {
     l_gfx_particle_update! water_particles[0], delta
     l_gfx_particle_update! water_particles[1], delta
     l_gfx_particle_update! water_particles[2], delta
+
+    l_gfx_particle_update! coin_particles[0], delta
+    l_gfx_particle_update! coin_particles[1], delta
+    l_gfx_particle_update! coin_particles[2], delta
 }
 
 add_fish_money_text :: fn value: int -> void {
@@ -327,6 +347,8 @@ draw_game :: fn {
         frisbee.draw!
     }
     for layer := 2, layer >= 0, layer -= 1 {
+        l_gfx_particle_render! coin_particles[layer]
+        l_gfx_particle_render! water_particles[layer]
         waves(layer)
         for i := 0, i < len(fishes), i += 1 {
             if fishes[i].layer == layer {
@@ -336,7 +358,6 @@ draw_game :: fn {
         if fish_mod.layer_to_z(layer) > frisbee.pos[2] && fish_mod.layer_to_z(layer-1) <= frisbee.pos[2] && !out_of_frisbees {
             frisbee.draw!
         }
-        l_gfx_particle_render! water_particles[layer]
     }
 
     offset_x := sin(2.6 * l_time()) * 0.04
