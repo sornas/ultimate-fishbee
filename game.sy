@@ -3,6 +3,7 @@ use font_mod
 use frisbee_mod
 use store_mod
 use curtain_mod
+use particles_mod
 
 init_store_ := fn -> void {}
 
@@ -21,6 +22,8 @@ fish_dims := [
     (200, 300),
     (105, 241),
 ]
+
+water_particles := particles_mod.water_particles!
 
 fish_frames := [
     l_load_image("res/fish1_1.png", (91, 236)),
@@ -104,7 +107,7 @@ curtain_edge :: fn -> (str, int) {
     ret _curtain_edge
 }
 
-curtain_pos := 2.0
+curtain_pos := 3.0
 curtain_vel := 0.0
 _curtain_on_complete := fn {}
 
@@ -130,9 +133,9 @@ curtain_on_complete :: fn {
 
 start_transition :: fn down: bool, on_complete: fn -> void {
     if down {
-        curtain_vel = -1.0
+        curtain_vel = -3.0
     } else {
-        curtain_vel = 1.0
+        curtain_vel = 2.0
     }
     _curtain_on_complete = on_complete
 }
@@ -211,10 +214,16 @@ update_game :: fn delta: float -> void {
     }
     fishes = fish_mod.fish_filter! fishes
 
-    // Spawn fish
+    // Spawn fish and water particles
     if l_random() < 0.03 {
         width := 8.0
-        push! fishes, fish_mod.fish_new([l_random() * width - width / 2.0 + 3.0, -3.0], l_random_range(0, 2))
+        x := l_random() * width - width / 2.0 + 3.0
+        y := -3.0
+        z := l_random_range(0, 2)
+        fish := fish_mod.fish_new([x, y], z)
+        particles_mod.water_at! water_particles, fish.world_pos(), (cos(1.743 * l_time()) * 0.04) - 0.65
+        l_gfx_particle_spawn! water_particles, 20
+        push! fishes, fish
     }
 
     if frisbee.out() {
@@ -229,6 +238,8 @@ update_game :: fn delta: float -> void {
             frisbee.reset!
         }
     }
+
+    l_gfx_particle_update! water_particles, delta
 }
 
 add_fish_money_text :: fn value: int -> void {
@@ -241,7 +252,8 @@ draw_fish_money :: fn {
 
     count_down = max(0.0, count_down - delta)
     tint := (215.0 / 255.0, 152.0 / 255.0, 11.0 / 255.0, min(0.5, count_down * count_down) * 2.0)
-    font_mod.draw_num_tint! -0.9, 0.8, 0.06, 1, made_money, 0, tint
+    font_mod.draw_num_tint! -0.9, 0.7, 0.06, 1, made_money, 0, tint
+    font_mod.draw_num(-0.9, 0.8, 0.1, -1, money, 0)
 }
 
 wave_sprite := l_load_image("res/water-wave-bigger.png", (128, 128))
@@ -308,7 +320,8 @@ draw_game :: fn {
         f.draw_stacked! stack_x, y, 1.0
     }
 
-    font_mod.draw_num(-0.9, 0.9, 0.1, -1, money, 0)
+    l_gfx_particle_render! water_particles
+
     draw_fish_money!
 
     scale := 0.3
