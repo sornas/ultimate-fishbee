@@ -33,10 +33,11 @@ vel_from_mouse_pos :: fn -> [float] {
 
     SCALING :: 0.03
 
+    D :: 20.0
     ret [
-        clamp(-as_float(x - WINDOW_DIM_X / 2) * SCALING, -30.0, 30.0),
+        clamp(-as_float(x - WINDOW_DIM_X / 2) * SCALING, -D, D),
         2.0,
-        clamp(as_float(y - WINDOW_DIM_Y / 2) * SCALING, 0.0, 15.0),
+        clamp(as_float(y - WINDOW_DIM_Y / 2) * SCALING, 0.0, D),
     ]
 }
 
@@ -115,7 +116,9 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
         if !self.thrown && l_input_released("hold") {
             self.thrown = true
             self.throws += 1
+            self.vel[0] *= (0.2 + self.weight * 0.2)
             self.vel[2] += l_random() * self.accuracy - 0.2
+            self.vel[2] *= (0.3 + self.weight * 0.3)
         }
 
         if self.thrown {

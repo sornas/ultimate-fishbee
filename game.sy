@@ -9,8 +9,8 @@ font :: fn -> (str, int) {
     ret font_sprite
 }
 
-FONT_DOLLAR    := 0
-FONT_PLUS      := 1
+// FONT_DOLLAR    := 0
+// FONT_PLUS      := 1
 // FONT_MINUS     := 2
 // FONT_QUESTION  := 3
 
@@ -44,6 +44,8 @@ fishes := fish_mod.fish_list!
 frisbee_stack := frisbee_mod.stack!
 frisbee := frisbee_mod.new! 1.0, 1.0, 1.0, 1.0
 out_of_frisbees := false
+
+fish_money := [(0, [0.0])]
 
 GAME_STATE_PLAYING := 0
 GAME_STATE_STORE := 1
@@ -148,6 +150,7 @@ buy_frisbee :: fn weight: float, bounciness: float, reusable: float, accuracy: f
 
 init :: fn {
     pop! frisbee_stack
+    clear! fish_money
 
     buy_frisbee! 1.0, 1.0, 1.0, 1.0
     buy_frisbee! 1.0, 1.0, 1.0, 1.0
@@ -194,8 +197,7 @@ update_game :: fn delta: float -> void {
                 frisbee.vel[0] *= -1.0 * frisbee.bounciness
                 fish.hit!
                 money += fish.value
-                print "MONEY:"
-                print money
+                add_fish_money_text! fish.world_pos(), fish.value
             }
         }
     }
@@ -219,6 +221,31 @@ update_game :: fn delta: float -> void {
             frisbee.reset!
         }
     }
+}
+
+add_fish_money_text :: fn pos: [float], value: int -> void {
+    push! fish_money, (value, [pos[0], pos[1], pos[2], 0.0])
+}
+
+draw_fish_money :: fn {
+    delta : !float = l_delta()
+
+    new_fish_money : ![(int, [float])] = []
+    for money in fish_money {
+        value : !int = money[0]
+        pos : ![float] = money[1]
+
+        pos[1] = pos[1] + delta
+
+        font_mod.draw_num(pos[0] / pos[2], pos[1] / pos[2], 0.05, 1, value, 0)
+
+        pos[3] += delta
+        if pos[3] < 1.0 {
+            push! new_fish_money, money
+        }
+    }
+
+    fish_money = new_fish_money
 }
 
 wave_sprite := l_load_image("res/water-wave-bigger.png", (128, 128))
@@ -261,6 +288,7 @@ draw_game :: fn {
             }
         }
     }
+    draw_fish_money!
 
     offset_x := sin(2.6 * l_time()) * 0.04
     offset_y := cos(1.743 * l_time()) * 0.04
@@ -280,6 +308,8 @@ draw_game :: fn {
     if !out_of_frisbees {
         frisbee.draw!
     }
+
+    font_mod.draw_num(-0.9, 0.9, 0.1, -1, money, 0)
 }
 
 start :: fn {
@@ -310,7 +340,6 @@ start :: fn {
             draw_store!
         }
 
-        font_mod.draw_num! 0.5, 0.0, 0.1, FONT_PLUS, 205, FONT_DOLLAR
 
         curtain_mod.curtain_update! l_delta!
         curtain_mod.curtain_draw!
