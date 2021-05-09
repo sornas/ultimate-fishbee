@@ -112,6 +112,9 @@ set_curtain_pos :: fn pos: float {
 }
 
 get_curtain_vel :: fn -> float {
+    if game_state == GAME_STATE_STORE {
+        ret curtain_vel * 2.0
+    }
     ret curtain_vel
 }
 
@@ -160,8 +163,6 @@ init :: fn {
     l_bind_key! "e", "hold"
 
     l_bind_key! "s", "store"
-
-    start_transition! true, fn {}
 }
 
 update_game :: fn delta: float -> void {
@@ -171,7 +172,10 @@ update_game :: fn delta: float -> void {
     }
 
     if l_input_down("store") {
-        game_state = GAME_STATE_STORE
+        on_complete := fn {
+            set_game_state(1)
+        }
+        start_transition! true, on_complete
     }
 
     i := 0
@@ -297,13 +301,13 @@ start :: fn {
             draw_game!
         }
         if game_state == GAME_STATE_STORE {
-            update_store! l_delta()
+            update_store! l_delta!
             draw_store!
         }
 
         font_mod.draw_num! 0.5, 0.0, 0.1, FONT_PLUS, 205, FONT_DOLLAR
 
-        curtain_mod.curtain_update! l_delta()
+        curtain_mod.curtain_update! l_delta!
         curtain_mod.curtain_draw!
 
         l_render!

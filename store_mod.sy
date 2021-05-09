@@ -57,7 +57,8 @@ store_init :: fn -> (fn -> void, fn float -> void, fn -> void) {
 
                 if l_input_released("hold") && d < 0.2 && game.pay(prices[y * W + x]) {
                     game.buy_frisbee! fb[0], fb[1], fb[2], fb[3]
-                    game.set_game_state! 0 // GAME_STATE_PLAYING
+                    // GAME_STATE_PLAYING
+                    game.start_transition! true, fn { game.set_game_state(0) }
                 }
 
                 f := frisbee_mod.new! fb[0], fb[1], fb[2], fb[3]
