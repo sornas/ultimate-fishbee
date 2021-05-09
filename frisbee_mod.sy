@@ -37,7 +37,7 @@ vel_from_mouse_pos :: fn -> [float] {
     ret [
         clamp(-as_float(x - WINDOW_DIM_X / 2) * SCALING, -D, D),
         2.0,
-        clamp(as_float(y - WINDOW_DIM_Y / 2) * SCALING, 0.0, D),
+        clamp(as_float(y - WINDOW_DIM_Y / 2) * SCALING, -0.1, D),
     ]
 }
 
@@ -108,8 +108,14 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
     }
 
     self.update = fn delta: float -> void {
+
+        vel := vel_from_mouse_pos!
+        if (!self.thrown) && vel[2] < 0.0 {
+            ret
+        }
+
         if !self.thrown && l_input_down("hold") {
-            self.vel = vel_from_mouse_pos!
+            self.vel = vel
             self.pos = pos_from_vel! self.vel
         }
 
