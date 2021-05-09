@@ -75,6 +75,7 @@ frisbee_stack := frisbee_mod.stack!
 frisbee := frisbee_mod.new! 1.0, 1.0, 1.0, 1.0
 out_of_frisbees := false
 
+highscore := 0
 total_money := 0
 made_money := 0
 count_down := 0.0
@@ -231,6 +232,7 @@ goto_store :: fn -> void {
 
 reset_game :: fn {
     money = 25
+    total_money = 0
     frisbee_stack = frisbee_mod.stack!
     clear! frisbee_stack
 
@@ -286,8 +288,6 @@ update_game :: fn delta: float -> void {
                 fish.hit!
                 money += fish.value
                 total_money += fish.value
-                // TODO(ed): Use the total money
-                total_money
                 add_fish_money_text! fish.value
 
                 fish.hit!
@@ -499,8 +499,6 @@ start :: fn {
     init_store!
     init_store_ = init_store
 
-    l_gfx_particle_spawn! party_system, 8000
-
     for _ in inf(0) {
         _
         if l_input_down("quit") {
@@ -523,6 +521,18 @@ start :: fn {
 
 
         if game_state == GAME_STATE_MENU {
+
+            if total_money > highscore {
+                highscore = total_money
+                total_money = 0
+                l_gfx_particle_spawn! party_system, 8000
+            }
+
+            if highscore != 0 {
+                tint := (215.0 / 255.0, 152.0 / 255.0, 11.0 / 255.0)
+                font_mod.draw_num_tint! -0.1, -0.7, 0.1, -1, highscore, -1, tint
+            }
+
             set_curtain_pos(-0.2)
             scale := sin(l_time() * 1.212) * 0.01
             dx := sin(l_time() * 1.777) * 0.02
