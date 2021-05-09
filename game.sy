@@ -2,6 +2,7 @@ use fish_mod
 use font_mod
 use frisbee_mod
 use store_mod
+use curtain_mod
 
 font_sprite := l_load_image("src/res/font.png", (11, 11))
 font :: fn -> (str, int) {
@@ -87,6 +88,50 @@ frisbee_accent :: fn type: int, index: int -> (str, int) {
     ret frisbee_accents[type][index]
 }
 
+_curtain_full :: l_load_image("res/curtain_full.png", (512, 512))
+_curtain_edge :: l_load_image("res/curtain_edge.png", (512, 512))
+
+curtain_full :: fn -> (str, int) {
+    ret _curtain_full
+}
+
+curtain_edge :: fn -> (str, int) {
+    ret _curtain_edge
+}
+
+curtain_pos := 2.0
+curtain_vel := 0.0
+_curtain_on_complete := fn {}
+
+get_curtain_pos :: fn -> float {
+    ret curtain_pos
+}
+
+set_curtain_pos :: fn pos: float {
+    curtain_pos = pos
+}
+
+get_curtain_vel :: fn -> float {
+    ret curtain_vel
+}
+
+set_curtain_vel :: fn vel: float {
+    curtain_vel = vel
+}
+
+curtain_on_complete :: fn {
+    _curtain_on_complete()
+}
+
+start_transition :: fn down: bool, on_complete: fn -> void {
+    if down {
+        curtain_vel = -1.0
+    } else {
+        curtain_vel = 1.0
+    }
+    _curtain_on_complete = on_complete
+}
+
 money := 25
 
 pay :: fn price: int -> bool {
@@ -124,7 +169,10 @@ update_game :: fn delta: float -> void {
     }
 
     if l_input_down("store") {
-        game_state = GAME_STATE_STORE
+        on_complete := fn {
+            set_game_state(1)
+        }
+        start_transition! true, on_complete
     }
 
     i := 0
@@ -187,8 +235,14 @@ waves :: fn layer: int -> void {
         if layer == 2.0 {
             offset -= 0.1
         }
+
+        scale_x := scale
+        if layer == 1.0 {
+            scale_x *= -1.0
+        }
+
         y := offset + cos(time * 1.2) * 0.02
-        l_gfx_sprite! wave_sprite, (0, 0), x, y, scale, scale
+        l_gfx_sprite! wave_sprite, (0, 0), x, y, scale_x, scale
     }
 }
 
@@ -252,11 +306,14 @@ start :: fn {
             draw_game!
         }
         if game_state == GAME_STATE_STORE {
-            update_store! l_delta()
+            update_store! l_delta!
             draw_store!
         }
 
         font_mod.draw_num! 0.5, 0.0, 0.1, FONT_PLUS, 205, FONT_DOLLAR
+
+        curtain_mod.curtain_update! l_delta!
+        curtain_mod.curtain_draw!
 
         l_render!
     }

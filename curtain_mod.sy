@@ -1,0 +1,31 @@
+use game
+
+curtain_draw :: fn -> void {
+    pos := game.get_curtain_pos() + 0.5
+    sprite := game.curtain_full()
+    l_gfx_sprite! sprite, (0, 0), (-0.5, pos + 1.0), (1.0, 1.0)
+    l_gfx_sprite! sprite, (0, 0), ( 0.5, pos + 1.0), (1.0, 1.0)
+    l_gfx_sprite! sprite, (0, 0), (-0.5, pos), (1.0, 1.0)
+    l_gfx_sprite! sprite, (0, 0), ( 0.5, pos), (1.0, 1.0)
+    pos = game.get_curtain_pos() - 0.5
+    sprite = game.curtain_edge()
+    l_gfx_sprite! sprite, (0, 0), (-0.5, pos), (1.0, 1.0)
+    l_gfx_sprite! sprite, (0, 0), ( 0.5, pos), (1.0, 1.0)
+}
+
+curtain_update :: fn delta: float {
+
+    MAX_POS :: 2.0
+    MIN_POS :: -0.2
+
+    pos := game.get_curtain_pos()
+    vel := game.get_curtain_vel()
+    game.set_curtain_pos(clamp(pos + 0.66 * delta * vel, MIN_POS, MAX_POS))
+
+    if vel < 0.0 && pos == MIN_POS {
+        game.set_curtain_vel(1.0)
+        game.curtain_on_complete()
+    } else if vel > 1.0 && pos == MAX_POS {
+        game.set_curtain_vel(0.0)
+    }
+}
