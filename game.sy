@@ -39,6 +39,7 @@ coin_particles := [
     particles_mod.coin_particles(),
     particles_mod.coin_particles(),
     particles_mod.coin_particles(),
+]
 
 last_wave := 0.0
 sounds := [
