@@ -134,6 +134,16 @@ start_transition :: fn down: bool, on_complete: fn -> void {
     _curtain_on_complete = on_complete
 }
 
+keep_frames := [
+    l_load_image("res/keep1.png", (146, 186)),
+    l_load_image("res/keep2.png", (146, 186)),
+    l_load_image("res/keep3.png", (146, 186)),
+]
+
+keep_frame :: fn frame: int -> (str, int) {
+    ret keep_frames[frame]
+}
+
 money := 25
 
 pay :: fn price: int -> bool {
