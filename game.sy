@@ -30,6 +30,15 @@ water_particles := [
     particles_mod.water_particles(),
 ]
 
+coin_sprite_ := l_load_image("res/gold.png", (65, 45))
+coin_sprite :: fn -> (str, int) {
+    ret coin_sprite_
+}
+
+coin_particles := [
+    particles_mod.coin_particles(),
+    particles_mod.coin_particles(),
+    particles_mod.coin_particles(),
 
 last_wave := 0.0
 sounds := [
@@ -261,6 +270,8 @@ update_game :: fn delta: float -> void {
             distance := sqrt! delta[0] * delta[0] + delta[1] * delta[1] + delta[2] * delta[2]
             if distance < 0.5 {
                 frisbee.vel[0] *= -1.0 * frisbee.bounciness
+                particles_mod.coin_at! coin_particles[fish.layer], fish.world_pos()
+                l_gfx_particle_spawn! coin_particles[fish.layer], fish.value * 2
                 l_audio_play(sounds[2], false, 1.0, 2.0)
                 fish.hit!
                 money += fish.value
@@ -268,6 +279,8 @@ update_game :: fn delta: float -> void {
                 // TODO(ed): Use the total money
                 total_money
                 add_fish_money_text! fish.value
+
+                fish.hit!
             }
         }
     }
@@ -301,6 +314,10 @@ update_game :: fn delta: float -> void {
     l_gfx_particle_update! water_particles[0], delta
     l_gfx_particle_update! water_particles[1], delta
     l_gfx_particle_update! water_particles[2], delta
+
+    l_gfx_particle_update! coin_particles[0], delta
+    l_gfx_particle_update! coin_particles[1], delta
+    l_gfx_particle_update! coin_particles[2], delta
 }
 
 add_fish_money_text :: fn value: int -> void {
@@ -372,6 +389,8 @@ draw_game :: fn {
         frisbee.draw!
     }
     for layer := 2, layer >= 0, layer -= 1 {
+        l_gfx_particle_render! coin_particles[layer]
+        l_gfx_particle_render! water_particles[layer]
         waves(layer)
         for i := 0, i < len(fishes), i += 1 {
             if fishes[i].layer == layer {
