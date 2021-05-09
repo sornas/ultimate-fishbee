@@ -188,7 +188,7 @@ update_game :: fn delta: float -> void {
             fish_pos := fish.world_pos!
             delta := [
                 fish_pos[0] - frisbee.pos[0],
-                0.0, // fish_pos[1] - frisbee.pos[1], // don't check y
+                fish_pos[1] - frisbee.pos[1],
                 (fish_pos[2] - frisbee.pos[2]) * 0.3,
             ]
 
@@ -268,12 +268,18 @@ water_background := l_load_image("res/water-no-detail.png", (128, 128))
 draw_game :: fn {
     l_gfx_sprite! water_background, (0, 0), 0.0, -1.1, 2.0, 2.0
 
+    if fish_mod.layer_to_z(2) <= frisbee.pos[2] && !out_of_frisbees {
+        frisbee.draw!
+    }
     for layer := 2, layer >= 0, layer -= 1 {
         waves(layer)
         for i := 0, i < len(fishes), i += 1 {
             if fishes[i].layer == layer {
                 fishes[i].draw!
             }
+        }
+        if fish_mod.layer_to_z(layer) > frisbee.pos[2] && fish_mod.layer_to_z(layer-1) <= frisbee.pos[2] && !out_of_frisbees {
+            frisbee.draw!
         }
     }
 
@@ -290,10 +296,6 @@ draw_game :: fn {
         y := stack_y + 0.1 * as_float(i)
         f := frisbee_stack[i]
         f.draw_stacked! stack_x, y, 1.0
-    }
-
-    if !out_of_frisbees {
-        frisbee.draw!
     }
 
     font_mod.draw_num(-0.9, 0.9, 0.1, -1, money, 0)
