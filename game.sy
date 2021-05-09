@@ -59,9 +59,9 @@ count_down := 0.0
 
 GAME_STATE_PLAYING := 0
 GAME_STATE_STORE := 1
-// GAME_STATE_MENU := 2
+GAME_STATE_MENU := 2
 
-game_state := 0
+game_state := GAME_STATE_MENU
 
 set_game_state :: fn state: int {
     game_state = state
@@ -153,6 +153,8 @@ keep_frames := [
 keep_frame :: fn frame: int -> (str, int) {
     ret keep_frames[frame]
 }
+
+start_button :: l_load_image("res/start_button.png", (41, 60))
 
 money := 25
 
@@ -380,6 +382,9 @@ start :: fn {
     init_store!
     init_store_ = init_store
 
+    // Init menu
+    set_curtain_pos(-0.2)
+
     for _ in inf(0) {
         _
         if l_input_down("quit") {
@@ -388,11 +393,11 @@ start :: fn {
 
         l_update!
 
+
         if game_state == GAME_STATE_PLAYING {
             update_game! l_delta!
             draw_game!
-        }
-        if game_state == GAME_STATE_STORE {
+        } else if game_state == GAME_STATE_STORE {
             update_store! l_delta!
             draw_store!
         }
@@ -400,6 +405,17 @@ start :: fn {
 
         curtain_mod.curtain_update! l_delta!
         curtain_mod.curtain_draw!
+
+        if game_state == GAME_STATE_MENU {
+            scale := sin(l_time() * 1.212) * 0.01
+            dx := sin(l_time() * 1.777) * 0.02
+            dy := cos(l_time() * 2.999) * 0.003
+            l_gfx_sprite! start_button, (0, 0), scale + dx, scale + dy, 0.8 * 41.0 / 60.0, 0.8, sin(l_time()) * 0.1
+            if l_input_pressed("hold") {
+                game_state = GAME_STATE_PLAYING
+                start_transition! false, fn {}
+            }
+        }
 
         l_render!
     }
