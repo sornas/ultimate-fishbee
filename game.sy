@@ -105,7 +105,7 @@ curtain_edge :: fn -> (str, int) {
     ret _curtain_edge
 }
 
-curtain_pos := 2.0
+curtain_pos := 3.0
 curtain_vel := 0.0
 _curtain_on_complete := fn {}
 
@@ -131,9 +131,9 @@ curtain_on_complete :: fn {
 
 start_transition :: fn down: bool, on_complete: fn -> void {
     if down {
-        curtain_vel = -1.0
+        curtain_vel = -3.0
     } else {
-        curtain_vel = 1.0
+        curtain_vel = 2.0
     }
     _curtain_on_complete = on_complete
 }
@@ -244,7 +244,8 @@ draw_fish_money :: fn {
 
     count_down = max(0.0, count_down - delta)
     tint := (215.0 / 255.0, 152.0 / 255.0, 11.0 / 255.0, min(0.5, count_down * count_down) * 2.0)
-    font_mod.draw_num_tint! -0.9, 0.8, 0.06, 1, made_money, 0, tint
+    font_mod.draw_num_tint! -0.9, 0.7, 0.06, 1, made_money, 0, tint
+    font_mod.draw_num(-0.9, 0.8, 0.1, -1, money, 0)
 }
 
 wave_sprite := l_load_image("res/water-wave-bigger.png", (128, 128))
@@ -311,7 +312,6 @@ draw_game :: fn {
 
     l_gfx_particle_render! water_particles
 
-    font_mod.draw_num(-0.9, 0.9, 0.1, -1, money, 0)
     draw_fish_money!
 }
 
