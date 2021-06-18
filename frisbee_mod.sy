@@ -54,7 +54,7 @@ new :: fn weight: float, bounciness: float, reusable: float, accuracy: float -> 
     OFFSET_Y :: -0.2
     ANIM_TIME :: 0.25
 
-    self := Frisbee! {
+    self := Frisbee {
         pos: [0.0, OFFSET_Y, OFFSET_Z]
         vel: [0.0, 0.0, 0.0]
 

@@ -533,7 +533,6 @@ start :: fn {
     init_store_ = init_store
 
     loop true {
-        _
         if l_input_down("quit") {
             ret
         }
