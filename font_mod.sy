@@ -33,14 +33,19 @@ draw_num_tint :: fn x: float, y: float, scale: float, prefix: int, number: int, 
     }
 
     drawing := false
-    for part in [rem(number / 1000, 10), rem(number / 100, 10), rem(number / 10, 10), rem(number, 10)] {
+    draw_part :: fn part: int {
         if !drawing && part == 0 {
-            continue
+            ret
         }
         drawing = true
         l_gfx_sprite! game.font(), glyph_id_num(part), (x, y), (scale, scale), tint
         x += kern_x
     }
+    draw_part! rem(number / 1000, 10)
+    draw_part! rem(number / 100, 10)
+    draw_part! rem(number / 10, 10)
+    draw_part! rem(number / 1, 10)
+
     if number == 0 {
         l_gfx_sprite! game.font(), glyph_id_num(number), (x, y), (scale, scale), tint
         y += kern_x

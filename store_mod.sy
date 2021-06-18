@@ -28,21 +28,25 @@ store_init :: fn -> (fn -> void, fn -> bool, fn -> void) {
         clear! for_sale
         clear! prices
 
-        for i := 0, i < MAX_STORE_ITEMS, i += 1 {
+        i := 0
+        loop i < MAX_STORE_ITEMS {
             frisbee := [l_random(), l_random(), l_random(), l_random()]
             push! for_sale, frisbee
 
             price := calculate_price! frisbee
             push! prices, price
+            i += 1
         }
     }
 
     can_buy_anything :: fn -> bool {
         money := game.get_money()
-        for i := 0, i < MAX_STORE_ITEMS, i += 1 {
+        i := 0
+        loop i < MAX_STORE_ITEMS {
             if money >= prices[i] && prices[i] != 0 {
                 ret true
             }
+            i += 1
         }
         ret false
     }
@@ -61,16 +65,16 @@ store_init :: fn -> (fn -> void, fn -> bool, fn -> void) {
 
         W := MAX_STORE_ITEMS / 2
         H := MAX_STORE_ITEMS / W
-        for x := 0, x < W, x += 1 {
-            for y := 0, y < H, y += 1 {
+        x := 0
+        loop x < W {
+            fy :: fn y: int {
                 index := y * W + x
 
                 if prices[index] == 0 {
-                    continue
+                    ret
                 }
 
                 fb := for_sale[index]
-
 
                 draw_x := space * as_float(x) - offset_x
                 draw_y := space * as_float(y) - offset_y
@@ -97,8 +101,13 @@ store_init :: fn -> (fn -> void, fn -> bool, fn -> void) {
                     game.start_transition! true, fn { game.set_game_state(3) }
                     game.inc_bought_items()
                 }
-
             }
+            y := 0
+            loop y < H {
+                fy! y
+                y += 1
+            }
+            x += 1
         }
 
         l_gfx_sprite! game.keep_frame(as_int(rem(l_time() * 5.0, 3.0))), (0, 0), (0.05, 0.57), (146.0 / 186.0, 1.0) * (0.58, 0.58)

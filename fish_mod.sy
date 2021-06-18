@@ -97,11 +97,14 @@ fish_new :: fn pos: [float], layer: int -> Fish {
 
 fish_filter :: fn fishes: [Fish] -> [Fish] {
     valid_i := -1
-    for i := 0, i < len(fishes), i += 1 {
+    broken := false
+    i := 0
+    loop !broken && i < len(fishes) {
         if fishes[i].pos[1] >= -5.0 {
             valid_i = i
-            break
+            broken = true
         }
+        i += 1
     }
 
     if valid_i == -1 {
@@ -109,10 +112,12 @@ fish_filter :: fn fishes: [Fish] -> [Fish] {
     }
 
     new_fishes := [fishes[valid_i]]
-    for i := valid_i + 1, i < len(fishes), i += 1 {
+    i := valid_i + 1
+    loop i < len(fishes) {
         if fishes[i].pos[1] > -20.0 {
             push! new_fishes, fishes[i]
         }
+        i += 1
     }
     ret new_fishes
 }
