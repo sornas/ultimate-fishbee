@@ -10,10 +10,11 @@ dist :: fn a: (float, float), b: (float, float) -> float {
     ret sqrt! (a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1])
 }
 
+for_sale := [[1.0, 1.0, 1.0, 1.0]]
+prices := [0]
+MAX_STORE_ITEMS := 6
+
 store_init :: fn -> (fn -> void, fn -> bool, fn -> void) {
-    for_sale := [[1.0, 1.0, 1.0, 1.0]]
-    prices := [0]
-    MAX_STORE_ITEMS := 6
 
     inflation :: fn -> int {
         flate := l_random_range(2, 3) + game.bought_items() * game.bought_items() / 8

@@ -250,7 +250,7 @@ reset_game :: fn {
     buy_frisbee! 1.0, 1.0, 1.0, 1.0
     buy_frisbee! 1.0, 1.0, 1.0, 1.0
 
-    frisbee = pop! frisbee_stack
+    frisbee = frisbee_mod.pop_frisbee! frisbee_stack
 }
 
 last_time := l_time()
@@ -334,7 +334,7 @@ update_game :: fn delta: float -> void {
     if frisbee.out() {
         if frisbee.broken() {
             if len(frisbee_stack) > 0 {
-                frisbee = pop! frisbee_stack
+                frisbee = frisbee_mod.pop_frisbee! frisbee_stack
                 out_of_frisbees = false
             } else {
                 out_of_frisbees = true
@@ -523,7 +523,8 @@ start :: fn {
     fs := store_mod.store_init!
 
     init_store : !fn -> void = fs[0]
-    can_buy_anything = fs[1]
+    f : !fn -> bool = fs[1]
+    can_buy_anything = f
     draw_store : !fn -> void = fs[2]
 
 
