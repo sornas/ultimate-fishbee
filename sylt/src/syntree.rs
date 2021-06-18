@@ -399,6 +399,32 @@ impl<'a> Context<'a> {
         new
     }
 
+    fn skip_if(&self, token: T) -> Self {
+        if self.token() == &token {
+            self.skip(1)
+        } else {
+            *self
+        }
+    }
+
+    fn _skip_if_any<const N: usize>(&self, tokens: [T; N]) -> Self {
+        if tokens.iter().any(|t| self.token() == t) {
+            self.skip(1)
+        } else {
+            *self
+        }
+    }
+
+    /// Eat until the next non-newline token.
+    fn skip_while(&self, token: T) -> Self {
+        let mut ret = *self;
+        while ret.token() == &token {
+            println!("wowe");
+            ret = ret.skip(1);
+        }
+        ret
+    }
+
     /// Return the current [Token] and line number.
     fn peek(&self) -> &(T, usize) {
         self.tokens.get(self.curr).unwrap_or(&(T::EOF, 0))
@@ -455,19 +481,6 @@ macro_rules! expect {
     };
 }
 
-/// Skip the current token if it is any one of the specified tokens.
-macro_rules! skip_if {
-    ($ctx:expr, $( $token:pat )|+ ) => {
-        {
-            if matches!($ctx.token(), $( $token )|* ) {
-                $ctx.skip(1)
-            } else {
-                $ctx
-            }
-        }
-    };
-}
-
 /// Parse a [Type] definition, e.g. `fn int, int, bool -> bool`.
 fn parse_type<'t>(ctx: Context<'t>) -> ParseResult<'t, Type> {
     use RuntimeType::{Bool, Float, Int, String, Void};
@@ -519,7 +532,7 @@ fn parse_type<'t>(ctx: Context<'t>) -> ParseResult<'t, Type> {
                         params.push(param);
 
                         ctx = if matches!(ctx.token(), T::Comma | T::Arrow) {
-                            skip_if!(ctx, T::Comma)
+                            ctx.skip_if(T::Comma)
                         } else {
                             raise_syntax_error!(ctx, "Expected ',' or '->' after type parameter")
                         };
@@ -553,7 +566,7 @@ fn parse_type<'t>(ctx: Context<'t>) -> ParseResult<'t, Type> {
                         types.push(param);
 
                         ctx = if matches!(ctx.token(), T::Comma | T::RightParen) {
-                            skip_if!(ctx, T::Comma)
+                            ctx.skip_if(T::Comma)
                         } else {
                             raise_syntax_error!(ctx, "Expected ',' or ')' after tuple field")
                         };
@@ -765,7 +778,7 @@ fn statement<'t>(ctx: Context<'t>) -> ParseResult<'t, Statement> {
                                 "Expected a field deliminator: newline or ','"
                             );
                         }
-                        ctx = skip_if!(ctx, T::Comma);
+                        ctx = ctx.skip_if(T::Comma);
                     }
 
                     _ => {
@@ -840,7 +853,7 @@ fn statement<'t>(ctx: Context<'t>) -> ParseResult<'t, Statement> {
 
             let (ctx, kind, ty) = {
                 let forced = matches!(ctx.token(), T::Bang); // !int
-                let ctx = skip_if!(ctx, T::Bang);
+                let ctx = ctx.skip_if(T::Bang);
                 let (ctx, ty) = parse_type(ctx)?;
                 let kind = match (ctx.token(), forced) {
                     (T::Colon, true) => VarKind::ForceConst,
@@ -914,7 +927,7 @@ fn statement<'t>(ctx: Context<'t>) -> ParseResult<'t, Statement> {
 
     // TODO(ed): Not sure this is right.
     // let ctx = expect!(ctx, T::Newline, "Expected newline after statement");
-    let ctx = skip_if!(ctx, T::Newline);
+    let ctx = ctx.skip_if(T::Newline);
     Ok((ctx, Statement { span, kind }))
 }
 
@@ -947,7 +960,7 @@ fn assignable_call<'t>(ctx: Context<'t>, callee: Assignable) -> ParseResult<'t, 
                 ctx = _ctx; // assign to outer
                 args.push(expr);
 
-                ctx = skip_if!(ctx, T::Comma);
+                ctx = ctx.skip_if(T::Comma);
             }
         }
     }
@@ -1084,7 +1097,7 @@ mod expression {
                     params.push((ident, param));
 
                     ctx = if matches!(ctx.token(), T::Comma | T::Arrow | T::LeftBrace) {
-                        skip_if!(ctx, T::Comma)
+                        ctx.skip_if(T::Comma)
                     } else {
                         raise_syntax_error!(ctx, "Expected ',' '{{' or '->' after type parameter")
                     };
@@ -1144,13 +1157,7 @@ mod expression {
     /// Parse an expression until we reach a token with higher precedence.
     fn parse_precedence<'t>(ctx: Context<'t>, prec: Prec) -> ParseResult<'t, Expression> {
         // Initial value, e.g. a number value, assignable, ...
-        let (mut ctx, mut expr) = match prefix(ctx) {
-            Ok(ret) => ret,
-            Err((ctx, mut errs)) => {
-                errs.push(syntax_error!(ctx, "Invalid expression"));
-                return Err((ctx, errs));
-            }
-        };
+        let (mut ctx, mut expr) = prefix(ctx)?;
         while prec <= precedence(ctx.token()) {
             if let Ok((_ctx, _expr)) = infix(ctx, &expr) {
                 // assign to outer
@@ -1338,7 +1345,7 @@ mod expression {
         let mut is_tuple = matches!(ctx.token(), T::Comma | T::RightParen);
         loop {
             // Any initial comma is skipped since we checked it before entering the loop.
-            ctx = skip_if!(ctx, T::Comma);
+            ctx = ctx.skip_if(T::Comma);
             match ctx.token() {
                 // Done.
                 T::EOF | T::RightParen => {
@@ -1400,7 +1407,7 @@ mod expression {
                     if !matches!(ctx.token(), T::Comma | T::Newline | T::RightBrace) {
                         raise_syntax_error!(ctx, "Expected a delimiter: newline or ','");
                     }
-                    ctx = skip_if!(ctx, T::Comma);
+                    ctx = ctx.skip_if(T::Comma);
 
                     fields.push((name, expr));
                 }
@@ -1430,6 +1437,9 @@ mod expression {
         let span = ctx.span();
         let mut ctx = expect!(ctx, T::LeftBracket, "Expected '['");
 
+        // `l := [\n1` is valid
+        ctx = ctx.skip_while(T::Newline);
+
         // Inner experssions.
         let mut exprs = Vec::new();
         loop {
@@ -1443,7 +1453,9 @@ mod expression {
                 _ => {
                     let (_ctx, expr) = expression(ctx)?;
                     exprs.push(expr);
-                    ctx = skip_if!(_ctx, T::Comma);
+                    ctx = _ctx; // assign to outer
+                    ctx = ctx.skip_if(T::Comma);
+                    ctx = ctx.skip_while(T::Newline); // newlines after expression is valid inside lists
                 }
             }
         }
@@ -1507,7 +1519,7 @@ mod expression {
                         exprs.push(expr);
                     }
 
-                    ctx = skip_if!(ctx, T::Comma);
+                    ctx = ctx.skip_if(T::Comma);
                 }
             }
         }
@@ -1795,6 +1807,8 @@ mod test {
         test!(expression, bool_and: "true && a" => _);
         test!(expression, bool_or: "a || false" => _);
         test!(expression, bool_neg: "!a" => _);
+        test!(expression, bool_neg_multiple: "!a && b" => _);
+        test!(expression, bool_neg_multiple_rev: "a && !b" => _);
 
         test!(expression, cmp_eq: "a == b" => _);
         test!(expression, cmp_neq: "a != b" => _);
