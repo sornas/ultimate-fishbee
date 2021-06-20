@@ -56,11 +56,11 @@ fish_new :: fn pos: [float], layer: int -> Fish {
 
             time := rem! l_time(), FISH_ANIM_TIME
             if FISH_ANIM_TIME / 3.0 < time && time < FISH_ANIM_TIME * 2.0 / 3.0 {
-                q := game.fish_frame(fish.kind, 1)
-                sprite = q[0]
+                q : !(str, int) = game.fish_frame(fish.kind, 1)[0]
+                sprite = q
             } else if FISH_ANIM_TIME * 2.0 / 3.0 <= time {
-                q := game.fish_frame(fish.kind, 2)
-                sprite = q[0]
+                q : !(str, int) = game.fish_frame(fish.kind, 2)[0]
+                sprite = q
             }
 
             pos := fish.world_pos!
